@@ -1,523 +1,550 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fresh Time Tracker - Dashboard</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BLT — Session Dashboard</title>
+  <meta name="description" content="BLT session tracking dashboard — privacy-focused developer productivity."/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,sans-serif;background:#f9fafb;color:#1f2937;-webkit-font-smoothing:antialiased;font-size:14px;line-height:1.5}
+a{text-decoration:none;color:inherit}
+ul{list-style:none}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:56px;background:#fff;border-bottom:1px solid #E5E5E5;display:flex;align-items:center;padding:0 1.25rem;gap:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.nav-logo{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.nav-logo-icon{width:32px;height:32px;background:#E10101;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px}
+.nav-logo-text{font-weight:800;font-size:1.125rem;color:#111827;letter-spacing:-.02em}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1;margin-left:.5rem;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nl{padding:5px 11px;border-radius:6px;font-size:.8125rem;font-weight:500;color:#4b5563;white-space:nowrap;transition:all .15s}
+.nl:hover{background:#f3f4f6;color:#111827}
+.nl.active{color:#E10101;text-decoration:underline;text-underline-offset:3px;font-weight:600}
+.nav-actions{display:flex;align-items:center;gap:.5rem;flex-shrink:0;margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:.35rem;padding:6px 14px;border-radius:6px;font-size:.8125rem;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;border:none;font-family:inherit;text-decoration:none}
+.btn-outline{background:#fff;border:1.5px solid #E10101;color:#E10101}
+.btn-outline:hover{background:#E10101;color:#fff}
+.btn-primary{background:#E10101;color:#fff;border:1.5px solid #E10101}
+.btn-primary:hover{background:#b91c1c;border-color:#b91c1c}
+.av{width:32px;height:32px;border-radius:50%;background:#E10101;color:#fff;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;user-select:none}
+.hbg{display:none;background:none;border:none;cursor:pointer;padding:6px;color:#4b5563;align-items:center;margin-left:auto;border-radius:6px;font-size:17px}
+.hbg:hover{background:#f3f4f6}
+#mob-nav{display:none;background:#fff;border-top:1px solid #E5E5E5;padding:.75rem 1.25rem 1rem;position:fixed;top:56px;left:0;right:0;z-index:190;box-shadow:0 8px 24px rgba(0,0,0,.1)}
+#mob-nav.open{display:block}
+#mob-nav a{display:block;padding:9px 8px;font-size:.9375rem;font-weight:500;color:#374151;border-radius:6px}
+#mob-nav a:hover{background:#f9fafb;color:#E10101}
+.mob-actions{display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid #f3f4f6}
+.mob-actions a,.mob-actions button{text-align:center;justify-content:center}
 
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+/* ── LAYOUT ── */
+.layout{display:flex;padding-top:56px;min-height:100vh}
+.sidebar{width:210px;flex-shrink:0;background:#fff;border-right:1px solid #E5E5E5;position:fixed;top:56px;left:0;bottom:0;overflow-y:auto;padding:12px 0;transition:transform .25s;z-index:150}
+.sb-sec{padding:0 8px;margin-bottom:14px}
+.sb-lbl{font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#9ca3af;padding:0 8px;margin-bottom:4px}
+.si{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:6px;font-size:.8125rem;font-weight:500;color:#4b5563;transition:all .15s;cursor:pointer}
+.si:hover{background:#f3f4f6;color:#111827}
+.si.active{background:#feeae9;color:#E10101;font-weight:700}
+.si-ic{font-size:14px;flex-shrink:0;width:16px;text-align:center}
+.sb-bdg{margin-left:auto;font-size:10px;font-weight:700;padding:1px 6px;border-radius:10px}
+.bdg-r{background:#E10101;color:#fff}.bdg-g{background:#16a34a;color:#fff}.bdg-o{background:#f97316;color:#fff}
+.sb-hr{height:1px;background:#E5E5E5;margin:4px 8px}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:140;backdrop-filter:blur(2px)}
+.sb-overlay.open{display:block}
 
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-        }
+/* ── MAIN ── */
+.main{flex:1;margin-left:210px;padding:20px 24px;min-width:0;max-width:100%}
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
+/* ── BREADCRUMB ── */
+.bc{display:flex;align-items:center;gap:5px;font-size:12px;color:#9ca3af;margin-bottom:8px}
+.bc a{color:#6b7280;transition:color .15s}
+.bc a:hover{color:#E10101}
 
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
+/* ── PAGE HEADER ── */
+.ph{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:20px;gap:12px;flex-wrap:wrap}
+.ph-title{font-size:24px;font-weight:800;color:#111827;letter-spacing:-.02em;margin-bottom:4px}
+.ph-sub{font-size:12px;color:#6b7280}
+.ph-acts{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+/* ── CARD ── */
+.card{background:#fff;border:1px solid #E5E5E5;border-radius:10px;padding:20px;margin-bottom:16px;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.card-title{font-size:13px;font-weight:700;color:#111827;margin-bottom:14px;display:flex;align-items:center;gap:6px}
 
-        .card h2 {
-            margin-bottom: 16px;
-            color: #667eea;
-        }
+/* ── FORM ── */
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#6b7280}
+.form-input{width:100%;padding:8px 12px;border:1.5px solid #d1d5db;border-radius:6px;font-size:13px;font-family:inherit;color:#111827;outline:none;transition:border-color .15s,box-shadow .15s;background:#fff}
+.form-input:focus{border-color:#E10101;box-shadow:0 0 0 3px rgba(225,1,1,.08)}
+.form-input::placeholder{color:#9ca3af}
 
-        .controls {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
+/* ── STATUS BADGE ── */
+.status-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:100px;font-size:12px;font-weight:700;margin-bottom:14px}
+.st-inactive{background:#f3f4f6;color:#6b7280}
+.st-active{background:#f0fdf4;color:#16a34a;border:1px solid #bbf7d0}
+.st-paused{background:#fefce8;color:#ca8a04;border:1px solid #fde68a}
+.st-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.std-inactive{background:#9ca3af}
+.std-active{background:#22c55e;animation:pulse 2s infinite}
+.std-paused{background:#eab308}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
+/* ── CONTROLS ── */
+.controls{display:flex;gap:10px;flex-wrap:wrap}
+.btn-lg{padding:10px 20px;font-size:.9375rem;border-radius:8px;font-weight:700}
+.btn-stop{background:#fff;border:1.5px solid #6b7280;color:#374151}
+.btn-stop:hover{background:#f3f4f6}
+.btn-pause{background:#fff;border:1.5px solid #ca8a04;color:#ca8a04}
+.btn-pause:hover{background:#fefce8}
 
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
+/* ── STATS GRID ── */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:18px}
+.stat-card{background:#fff;border:1px solid #E5E5E5;border-radius:10px;padding:16px;box-shadow:0 1px 4px rgba(0,0,0,.04);position:relative;overflow:hidden}
+.stat-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.sc-r::before{background:#E10101}.sc-b::before{background:#2563eb}.sc-p::before{background:#7c3aed}.sc-g::before{background:#16a34a}
+.stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#9ca3af;margin-bottom:8px}
+.stat-val{font-size:1.75rem;font-weight:800;color:#111827;letter-spacing:-.02em;line-height:1}
 
-        .btn-primary:hover {
-            background: #5a67d8;
-            transform: translateY(-2px);
-        }
+/* ── LOG ── */
+.log-box{background:#111827;color:#e5e7eb;padding:14px;border-radius:8px;font-family:'Courier New',monospace;font-size:12px;max-height:280px;overflow-y:auto;margin-top:4px}
+.log-entry{padding:2px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.log-entry:last-child{border-bottom:none}
+.log-ts{color:#60a5fa;margin-right:6px}
+.log-s{color:#34d399}.log-e{color:#f87171}.log-i{color:#e5e7eb}
 
-        .btn-danger {
-            background: #f56565;
-            color: white;
-        }
+/* ── PRIVACY ── */
+.privacy-card{background:#f0fdf4;border:1px solid #bbf7d0;border-left:4px solid #16a34a;border-radius:10px;padding:18px;margin-bottom:16px}
+.privacy-title{font-size:13px;font-weight:700;color:#111827;margin-bottom:10px;display:flex;align-items:center;gap:7px}
+.privacy-list{display:flex;flex-direction:column;gap:6px}
+.privacy-item{display:flex;align-items:flex-start;gap:8px;font-size:12.5px;color:#374151}
+.privacy-item i{color:#16a34a;font-size:11px;margin-top:2px;flex-shrink:0}
 
-        .btn-danger:hover {
-            background: #e53e3e;
-        }
+/* ── TOAST ── */
+.tc{position:fixed;bottom:20px;right:20px;z-index:400;display:flex;flex-direction:column;gap:7px;pointer-events:none}
+.toast{background:#111827;color:#fff;padding:10px 15px;border-radius:8px;font-size:12px;font-weight:600;box-shadow:0 8px 24px rgba(0,0,0,.2);display:flex;align-items:center;gap:8px;transform:translateX(120%);transition:transform .3s cubic-bezier(.34,1.56,.64,1);pointer-events:all;max-width:280px}
+.toast.show{transform:translateX(0)}
+.t-s{border-left:3px solid #22c55e}.t-e{border-left:3px solid #E10101}.t-i{border-left:3px solid #2563eb}
 
-        .btn-secondary {
-            background: #718096;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #4a5568;
-        }
-
-        input {
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .status {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            display: inline-block;
-            margin-bottom: 16px;
-        }
-
-        .status.active {
-            background: #48bb78;
-            color: white;
-        }
-
-        .status.inactive {
-            background: #cbd5e0;
-            color: #4a5568;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
-        }
-
-        .stat-card {
-            background: #f7fafc;
-            padding: 16px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-
-        .stat-card h3 {
-            font-size: 0.9rem;
-            color: #718096;
-            margin-bottom: 8px;
-        }
-
-        .stat-card p {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #2d3748;
-        }
-
-        .privacy-notice {
-            background: #edf2f7;
-            border-left: 4px solid #48bb78;
-            padding: 16px;
-            margin-top: 20px;
-        }
-
-        .privacy-notice h3 {
-            color: #2d3748;
-            margin-bottom: 8px;
-        }
-
-        .privacy-notice ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .privacy-notice li {
-            padding: 4px 0;
-            color: #4a5568;
-        }
-
-        .privacy-notice li::before {
-            content: "✓ ";
-            color: #48bb78;
-            font-weight: bold;
-            margin-right: 8px;
-        }
-
-        #log {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 16px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 16px;
-        }
-
-        .log-entry {
-            padding: 4px 0;
-        }
-
-        .log-entry .timestamp {
-            color: #90cdf4;
-        }
-
-        .log-entry .success {
-            color: #48bb78;
-        }
-
-        .log-entry .error {
-            color: #f56565;
-        }
-    </style>
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%)}
+  .sidebar.open{transform:translateX(0)}
+  .sb-overlay.open{display:block}
+  .hbg{display:flex}
+  .nav-links,.nav-actions .btn-outline{display:none}
+  .main{margin-left:0;padding:14px}
+  .stats-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:480px){
+  .nav{padding:0 1rem}
+  .stats-grid{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .ph{flex-direction:column}
+  .ph-acts{width:100%;justify-content:flex-end}
+}
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🕐 Fresh Time Tracker</h1>
-            <p>Privacy-focused developer productivity tracking</p>
-        </div>
 
-        <div class="card">
-            <h2>Configuration</h2>
-            <div class="controls">
-                <input type="text" id="apiUrl" placeholder="API URL (http://localhost:8787)" value="http://localhost:8787">
-                <input type="text" id="userId" placeholder="User ID">
-                <input type="text" id="projectId" placeholder="Project ID">
-            </div>
-        </div>
+<!-- NAV -->
+<header>
+  <nav class="nav" aria-label="Main navigation">
+    <a class="nav-logo" href="index.html" aria-label="BLT home">
+      <div class="nav-logo-icon" aria-hidden="true"><i class="fa-solid fa-bug"></i></div>
+      <span class="nav-logo-text">BLT</span>
+    </a>
+    <ul class="nav-links" role="list">
+      <li><a class="nl" href="https://blt.owasp.org/issues/">Issues</a></li>
+      <li><a class="nl" href="https://blt.owasp.org/hunt/">Hunt</a></li>
+      <li><a class="nl active" href="dashboard.html" aria-current="page">Time Logs</a></li>
+      <li><a class="nl" href="https://blt.owasp.org/leaderboard/">Leaderboard</a></li>
+      <li><a class="nl" href="https://blt.owasp.org/companies/">Companies</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn-outline" href="index.html"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Home</a>
+      <button class="btn btn-primary" onclick="startTracking()"><i class="fa-solid fa-clock" aria-hidden="true"></i> Log Time</button>
+      <div class="av" title="AJ" aria-label="User AJ">AJ</div>
+    </div>
+    <button class="hbg" id="hambtn" onclick="toggleMob()" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mob-nav">
+      <i class="fa-solid fa-bars" aria-hidden="true"></i>
+    </button>
+  </nav>
+  <div id="mob-nav" role="navigation" aria-label="Mobile navigation">
+    <a href="https://blt.owasp.org/issues/">Issues</a>
+    <a href="https://blt.owasp.org/hunt/">Hunt</a>
+    <a href="dashboard.html" style="color:#E10101;font-weight:600">Time Logs</a>
+    <a href="https://blt.owasp.org/leaderboard/">Leaderboard</a>
+    <a href="https://blt.owasp.org/companies/">Companies</a>
+    <div class="mob-actions">
+      <a class="btn btn-outline" href="index.html" style="justify-content:center"><i class="fa-solid fa-arrow-left" aria-hidden="true"></i> Home</a>
+      <button class="btn btn-primary" onclick="startTracking();toggleMob()" style="justify-content:center;width:100%"><i class="fa-solid fa-clock" aria-hidden="true"></i> Log Time</button>
+    </div>
+  </div>
+</header>
 
-        <div class="card">
-            <h2>Session Control</h2>
-            <div id="status" class="status inactive">Not Tracking</div>
-            <div class="controls">
-                <button class="btn-primary" onclick="startTracking()">▶️ Start Session</button>
-                <button class="btn-secondary" onclick="pauseTracking()" disabled>⏸️ Pause</button>
-                <button class="btn-danger" onclick="stopTracking()" disabled>⏹️ Stop</button>
-            </div>
+<!-- Sidebar overlay -->
+<div class="sb-overlay" id="sbOverlay" onclick="closeSb()"></div>
 
-            <div class="stats" id="stats" style="display: none;">
-                <div class="stat-card">
-                    <h3>Session Duration</h3>
-                    <p id="duration">0m</p>
-                </div>
-                <div class="stat-card">
-                    <h3>GitHub Events</h3>
-                    <p id="githubEvents">0</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Activity Level</h3>
-                    <p id="activityLevel">-</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Productivity</h3>
-                    <p id="productivity">-</p>
-                </div>
-            </div>
-        </div>
+<div class="layout">
 
-        <div class="card">
-            <h2>Activity Log</h2>
-            <div id="log"></div>
-        </div>
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar" aria-label="Dashboard navigation">
+    <div class="sb-sec">
+      <div class="sb-lbl">Main</div>
+      <a class="si active" href="dashboard.html" aria-current="page">
+        <i class="si-ic fa-solid fa-gauge" aria-hidden="true"></i>Dashboard
+        <span class="sb-bdg bdg-r" id="sbBdg">0</span>
+      </a>
+      <a class="si" href="https://blt.owasp.org/issues/"><i class="si-ic fa-solid fa-bug" aria-hidden="true"></i>My Issues<span class="sb-bdg bdg-g">5</span></a>
+      <a class="si" href="https://blt.owasp.org/hunt/"><i class="si-ic fa-solid fa-crosshairs" aria-hidden="true"></i>Bug Hunt</a>
+    </div>
+    <div class="sb-hr"></div>
+    <div class="sb-sec">
+      <div class="sb-lbl">Analytics</div>
+      <a class="si" href="#"><i class="si-ic fa-solid fa-chart-line" aria-hidden="true"></i>Reports</a>
+      <a class="si" href="#"><i class="si-ic fa-solid fa-lightbulb" aria-hidden="true"></i>Insights</a>
+      <a class="si" href="https://blt.owasp.org/leaderboard/"><i class="si-ic fa-solid fa-trophy" aria-hidden="true"></i>Leaderboard</a>
+    </div>
+    <div class="sb-hr"></div>
+    <div class="sb-sec">
+      <div class="sb-lbl">Rewards</div>
+      <a class="si" href="#"><i class="si-ic fa-solid fa-coins" aria-hidden="true"></i>BACON Tokens<span class="sb-bdg bdg-o">NEW</span></a>
+      <a class="si" href="#"><i class="si-ic fa-solid fa-dollar-sign" aria-hidden="true"></i>Bounties</a>
+    </div>
+  </aside>
 
-        <div class="card">
-            <div class="privacy-notice">
-                <h3>🔒 Privacy Guarantee</h3>
-                <ul>
-                    <li>All screenshot analysis happens locally on your machine</li>
-                    <li>No screenshots or personal data uploaded to servers</li>
-                    <li>Only aggregate activity metrics collected</li>
-                    <li>Full control over what data is tracked</li>
-                    <li>Data encrypted at rest and in transit</li>
-                </ul>
-            </div>
-        </div>
+  <main class="main" id="main-content">
+
+    <!-- Breadcrumb -->
+    <nav class="bc" aria-label="Breadcrumb">
+      <a href="index.html">Home</a>
+      <span aria-hidden="true">&rsaquo;</span>
+      <span>Dashboard</span>
+    </nav>
+
+    <!-- Page Header -->
+    <div class="ph">
+      <div>
+        <h1 class="ph-title"><i class="fa-solid fa-gauge" aria-hidden="true" style="color:#E10101;font-size:20px;margin-right:6px"></i>Session Dashboard</h1>
+        <p class="ph-sub">Privacy-focused developer productivity tracking &mdash; all data stays local</p>
+      </div>
+      <div class="ph-acts">
+        <button class="btn btn-outline" onclick="refreshAll()"><i class="fa-solid fa-rotate" aria-hidden="true"></i> Refresh</button>
+        <button class="btn btn-primary" onclick="startTracking()"><i class="fa-solid fa-circle-play" aria-hidden="true"></i> New Session</button>
+      </div>
     </div>
 
-    <script>
-        let sessionId = null;
-        let startTime = null;
-        let durationInterval = null;
+    <!-- Configuration -->
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-sliders" aria-hidden="true" style="color:#E10101"></i> Configuration</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="form-label" for="apiUrl">API URL</label>
+          <input class="form-input" type="text" id="apiUrl" placeholder="http://localhost:8787" value="http://localhost:8787" autocomplete="off"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="userId">User ID</label>
+          <input class="form-input" type="text" id="userId" placeholder="Enter your user ID" autocomplete="username"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="projectId">Project ID</label>
+          <input class="form-input" type="text" id="projectId" placeholder="Enter project ID" autocomplete="off"/>
+        </div>
+      </div>
+    </div>
 
-        function log(message, type = 'info') {
-            const logDiv = document.getElementById('log');
-            const timestamp = new Date().toLocaleTimeString();
-            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
-            logDiv.innerHTML += `<div class="log-entry"><span class="timestamp">[${timestamp}]</span> <span class="${className}">${message}</span></div>`;
-            logDiv.scrollTop = logDiv.scrollHeight;
-        }
+    <!-- Session Control -->
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-circle-play" aria-hidden="true" style="color:#E10101"></i> Session Control</div>
 
-        function getApiUrl() {
-            return document.getElementById('apiUrl').value || 'http://localhost:8787';
-        }
+      <div id="status" class="status-badge st-inactive" role="status" aria-live="polite">
+        <div class="st-dot std-inactive" aria-hidden="true"></div>
+        Not Tracking
+      </div>
 
-        function getUserId() {
-            const userId = document.getElementById('userId').value;
-            if (!userId) {
-                alert('Please enter a User ID');
-                return null;
-            }
-            return userId;
-        }
+      <div class="controls">
+        <button class="btn btn-primary btn-lg" id="startBtn" onclick="startTracking()">
+          <i class="fa-solid fa-circle-play" aria-hidden="true"></i> Start Session
+        </button>
+        <button class="btn btn-pause btn-lg" id="pauseBtn" onclick="pauseTracking()" disabled aria-disabled="true">
+          <i class="fa-solid fa-circle-pause" aria-hidden="true"></i> Pause
+        </button>
+        <button class="btn btn-stop btn-lg" id="stopBtn" onclick="stopTracking()" disabled aria-disabled="true">
+          <i class="fa-solid fa-circle-stop" aria-hidden="true"></i> Stop
+        </button>
+      </div>
 
-        function getProjectId() {
-            const projectId = document.getElementById('projectId').value;
-            if (!projectId) {
-                alert('Please enter a Project ID');
-                return null;
-            }
-            return projectId;
-        }
+      <div class="stats-grid" id="stats" style="display:none" aria-label="Session statistics">
+        <div class="stat-card sc-r">
+          <div class="stat-label"><i class="fa-solid fa-clock" aria-hidden="true"></i> Session Duration</div>
+          <div class="stat-val" id="duration" aria-live="polite">0m</div>
+        </div>
+        <div class="stat-card sc-b">
+          <div class="stat-label"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub Events</div>
+          <div class="stat-val" id="githubEvents" aria-live="polite">0</div>
+        </div>
+        <div class="stat-card sc-p">
+          <div class="stat-label"><i class="fa-solid fa-bolt" aria-hidden="true"></i> Activity Level</div>
+          <div class="stat-val" id="activityLevel" aria-live="polite">&mdash;</div>
+        </div>
+        <div class="stat-card sc-g">
+          <div class="stat-label"><i class="fa-solid fa-chart-line" aria-hidden="true"></i> Productivity</div>
+          <div class="stat-val" id="productivity" aria-live="polite">&mdash;</div>
+        </div>
+      </div>
+    </div>
 
-        async function startTracking() {
-            const userId = getUserId();
-            const projectId = getProjectId();
-            if (!userId || !projectId) return;
+    <!-- Activity Log -->
+    <div class="card">
+      <div class="card-title"><i class="fa-solid fa-terminal" aria-hidden="true" style="color:#E10101"></i> Activity Log</div>
+      <div class="log-box" id="log" role="log" aria-label="Activity log" aria-live="polite"></div>
+    </div>
 
-            try {
-                const response = await fetch(`${getApiUrl()}/api/sessions/start`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-User-ID': userId,
-                    },
-                    body: JSON.stringify({ projectId }),
-                });
+    <!-- Privacy Notice -->
+    <div class="privacy-card" role="region" aria-label="Privacy information">
+      <div class="privacy-title"><i class="fa-solid fa-shield-halved" style="color:#16a34a" aria-hidden="true"></i> Privacy Guarantee</div>
+      <ul class="privacy-list" role="list">
+        <li class="privacy-item"><i class="fa-solid fa-check" aria-hidden="true"></i><span>All screenshot analysis happens locally on your machine</span></li>
+        <li class="privacy-item"><i class="fa-solid fa-check" aria-hidden="true"></i><span>No screenshots or personal data uploaded to servers</span></li>
+        <li class="privacy-item"><i class="fa-solid fa-check" aria-hidden="true"></i><span>Only aggregate activity metrics collected</span></li>
+        <li class="privacy-item"><i class="fa-solid fa-check" aria-hidden="true"></i><span>Full control over what data is tracked</span></li>
+        <li class="privacy-item"><i class="fa-solid fa-check" aria-hidden="true"></i><span>Data encrypted at rest and in transit</span></li>
+      </ul>
+    </div>
 
-                const data = await response.json();
-                sessionId = data.session.id;
-                startTime = Date.now();
+  </main>
+</div>
 
-                document.getElementById('status').className = 'status active';
-                document.getElementById('status').textContent = 'Tracking Active';
-                document.getElementById('stats').style.display = 'grid';
-                
-                document.querySelector('.btn-primary').disabled = true;
-                document.querySelector('.btn-secondary').disabled = false;
-                document.querySelector('.btn-danger').disabled = false;
+<!-- Toast container -->
+<div class="tc" id="tc" aria-live="polite"></div>
 
-                log('Session started: ' + sessionId, 'success');
-                
-                // Start duration counter
-                durationInterval = setInterval(updateDuration, 1000);
+<script>
+  /* ── State ── */
+  let sessionId = null;
+  let startTime = null;
+  let durationInterval = null;
 
-                // Simulate some activity
-                setTimeout(() => trackGithubEvent(), 3000);
-                setTimeout(() => trackAgentPrompt(), 6000);
+  /* ── Logging ── */
+  function log(message, type = 'info') {
+    const logDiv = document.getElementById('log');
+    const timestamp = new Date().toLocaleTimeString();
+    const cls = type === 'success' ? 'log-s' : type === 'error' ? 'log-e' : 'log-i';
+    logDiv.innerHTML += `<div class="log-entry"><span class="log-ts">[${timestamp}]</span><span class="${cls}">${message}</span></div>`;
+    logDiv.scrollTop = logDiv.scrollHeight;
+  }
 
-            } catch (error) {
-                log('Failed to start session: ' + error.message, 'error');
-            }
-        }
+  function getApiUrl() {
+    return document.getElementById('apiUrl').value || 'http://localhost:8787';
+  }
 
-        async function stopTracking() {
-            if (!sessionId) return;
+  function getUserId() {
+    const v = document.getElementById('userId').value.trim();
+    if (!v) { showToast('Please enter a User ID', 'e'); return null; }
+    return v;
+  }
 
-            const userId = getUserId();
-            if (!userId) return;
+  function getProjectId() {
+    const v = document.getElementById('projectId').value.trim();
+    if (!v) { showToast('Please enter a Project ID', 'e'); return null; }
+    return v;
+  }
 
-            try {
-                const response = await fetch(`${getApiUrl()}/api/sessions/${sessionId}/end`, {
-                    method: 'POST',
-                    headers: {
-                        'X-User-ID': userId,
-                    },
-                });
+  /* ── Session Control ── */
+  async function startTracking() {
+    const userId = getUserId();
+    const projectId = getProjectId();
+    if (!userId || !projectId) return;
+    try {
+      const response = await fetch(`${getApiUrl()}/api/sessions/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-ID': userId },
+        body: JSON.stringify({ projectId }),
+      });
+      const data = await response.json();
+      sessionId = data.session.id;
+      startTime = Date.now();
+      setStatus('active');
+      document.getElementById('stats').style.display = 'grid';
+      document.getElementById('startBtn').disabled = true;
+      document.getElementById('pauseBtn').disabled = false;
+      document.getElementById('pauseBtn').removeAttribute('aria-disabled');
+      document.getElementById('stopBtn').disabled = false;
+      document.getElementById('stopBtn').removeAttribute('aria-disabled');
+      document.getElementById('sbBdg').textContent = '1';
+      log('Session started: ' + sessionId, 'success');
+      durationInterval = setInterval(updateDuration, 1000);
+      setTimeout(() => trackGithubEvent(), 3000);
+      setTimeout(() => trackAgentPrompt(), 6000);
+    } catch (error) {
+      log('Failed to start session: ' + error.message, 'error');
+      showToast('Could not start session — is the API running?', 'e');
+    }
+  }
 
-                const data = await response.json();
-                
-                document.getElementById('status').className = 'status inactive';
-                document.getElementById('status').textContent = 'Not Tracking';
-                
-                document.querySelector('.btn-primary').disabled = false;
-                document.querySelector('.btn-secondary').disabled = true;
-                document.querySelector('.btn-danger').disabled = true;
+  async function stopTracking() {
+    if (!sessionId) return;
+    const userId = getUserId();
+    if (!userId) return;
+    try {
+      const response = await fetch(`${getApiUrl()}/api/sessions/${sessionId}/end`, {
+        method: 'POST',
+        headers: { 'X-User-ID': userId },
+      });
+      const data = await response.json();
+      setStatus('inactive');
+      document.getElementById('startBtn').disabled = false;
+      document.getElementById('pauseBtn').disabled = true;
+      document.getElementById('pauseBtn').setAttribute('aria-disabled', 'true');
+      document.getElementById('stopBtn').disabled = true;
+      document.getElementById('stopBtn').setAttribute('aria-disabled', 'true');
+      clearInterval(durationInterval);
+      log('Session ended. Duration: ' + Math.floor(data.session.duration / 1000 / 60) + ' minutes', 'success');
+      showToast('Session saved!', 's');
+      await getSummary();
+      sessionId = null;
+      startTime = null;
+    } catch (error) {
+      log('Failed to end session: ' + error.message, 'error');
+    }
+  }
 
-                clearInterval(durationInterval);
-                
-                log('Session ended. Duration: ' + Math.floor(data.session.duration / 1000 / 60) + ' minutes', 'success');
-                
-                // Get summary
-                await getSummary();
-                
-                sessionId = null;
-                startTime = null;
+  async function pauseTracking() {
+    if (!sessionId) return;
+    const userId = getUserId();
+    if (!userId) return;
+    try {
+      await fetch(`${getApiUrl()}/api/sessions/${sessionId}/pause`, {
+        method: 'POST',
+        headers: { 'X-User-ID': userId },
+      });
+      setStatus('paused');
+      clearInterval(durationInterval);
+      log('Session paused', 'success');
+      showToast('Session paused', 'i');
+    } catch (error) {
+      log('Failed to pause session: ' + error.message, 'error');
+    }
+  }
 
-            } catch (error) {
-                log('Failed to end session: ' + error.message, 'error');
-            }
-        }
+  function setStatus(state) {
+    const el = document.getElementById('status');
+    const states = {
+      active:   { cls: 'st-active',   dot: 'std-active',   text: 'Tracking Active' },
+      paused:   { cls: 'st-paused',   dot: 'std-paused',   text: 'Paused' },
+      inactive: { cls: 'st-inactive', dot: 'std-inactive', text: 'Not Tracking' },
+    };
+    const s = states[state] || states.inactive;
+    el.className = 'status-badge ' + s.cls;
+    el.innerHTML = `<div class="st-dot ${s.dot}" aria-hidden="true"></div>${s.text}`;
+  }
 
-        async function pauseTracking() {
-            if (!sessionId) return;
+  function updateDuration() {
+    if (!startTime) return;
+    const mins = Math.floor((Date.now() - startTime) / 1000 / 60);
+    document.getElementById('duration').textContent = mins + 'm';
+  }
 
-            const userId = getUserId();
-            if (!userId) return;
+  /* ── Activity Tracking ── */
+  async function trackGithubEvent() {
+    if (!sessionId) return;
+    const userId = getUserId();
+    if (!userId) return;
+    try {
+      await fetch(`${getApiUrl()}/api/activity`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-ID': userId },
+        body: JSON.stringify({
+          sessionId,
+          type: 'github',
+          data: { type: 'github', action: 'commit', repository: 'OWASP-BLT/BLT', commitSha: 'abc123' /* demo value */ },
+        }),
+      });
+      const c = parseInt(document.getElementById('githubEvents').textContent) || 0;
+      document.getElementById('githubEvents').textContent = c + 1;
+      log('GitHub commit tracked', 'success');
+    } catch (error) {
+      log('Failed to track GitHub event: ' + error.message, 'error');
+    }
+  }
 
-            try {
-                await fetch(`${getApiUrl()}/api/sessions/${sessionId}/pause`, {
-                    method: 'POST',
-                    headers: {
-                        'X-User-ID': userId,
-                    },
-                });
+  async function trackAgentPrompt() {
+    if (!sessionId) return;
+    const userId = getUserId();
+    if (!userId) return;
+    try {
+      await fetch(`${getApiUrl()}/api/activity`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'X-User-ID': userId },
+        body: JSON.stringify({
+          sessionId,
+          type: 'agent-prompt',
+          data: { type: 'agent-prompt', agentName: 'GitHub Copilot', promptLength: 150, responseLength: 500 },
+        }),
+      });
+      log('Agent prompt tracked: GitHub Copilot', 'success');
+    } catch (error) {
+      log('Failed to track agent prompt: ' + error.message, 'error');
+    }
+  }
 
-                document.getElementById('status').className = 'status inactive';
-                document.getElementById('status').textContent = 'Paused';
-                
-                clearInterval(durationInterval);
-                
-                log('Session paused', 'success');
+  async function getSummary() {
+    if (!sessionId) return;
+    const userId = getUserId();
+    if (!userId) return;
+    try {
+      const response = await fetch(`${getApiUrl()}/api/sessions/${sessionId}/summary`, {
+        headers: { 'X-User-ID': userId },
+      });
+      const { summary } = await response.json();
+      document.getElementById('githubEvents').textContent = summary.githubEvents;
+      document.getElementById('productivity').textContent = summary.productivity.toUpperCase();
+      document.getElementById('activityLevel').textContent = summary.activityLevel || 'HIGH';
+      log('Summary: ' + summary.productivity + ' productivity', 'success');
+    } catch (error) {
+      log('Failed to get summary: ' + error.message, 'error');
+    }
+  }
 
-            } catch (error) {
-                log('Failed to pause session: ' + error.message, 'error');
-            }
-        }
+  /* ── UI Helpers ── */
+  function refreshAll() {
+    log('Dashboard refreshed', 'success');
+    showToast('Refreshed', 's');
+  }
 
-        function updateDuration() {
-            if (!startTime) return;
-            const duration = Math.floor((Date.now() - startTime) / 1000 / 60);
-            document.getElementById('duration').textContent = duration + 'm';
-        }
+  function showToast(msg, type = 'i') {
+    const icons = { s: 'fa-check-circle', e: 'fa-circle-exclamation', i: 'fa-circle-info' };
+    const c = document.getElementById('tc');
+    const t = document.createElement('div');
+    t.className = `toast t-${type}`;
+    t.innerHTML = `<i class="fa-solid ${icons[type] || 'fa-circle-info'}" aria-hidden="true"></i><span>${msg}</span>`;
+    c.appendChild(t);
+    requestAnimationFrame(() => requestAnimationFrame(() => t.classList.add('show')));
+    setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 350); }, 3500);
+  }
 
-        async function trackGithubEvent() {
-            if (!sessionId) return;
+  function toggleMob() {
+    const m = document.getElementById('mob-nav');
+    const b = document.getElementById('hambtn');
+    const open = m.classList.toggle('open');
+    b.setAttribute('aria-expanded', open);
+    b.querySelector('i').className = open ? 'fa-solid fa-xmark' : 'fa-solid fa-bars';
+  }
 
-            const userId = getUserId();
-            if (!userId) return;
+  function toggleSb() {
+    document.getElementById('sidebar').classList.toggle('open');
+    document.getElementById('sbOverlay').classList.toggle('open');
+  }
 
-            try {
-                await fetch(`${getApiUrl()}/api/activity`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-User-ID': userId,
-                    },
-                    body: JSON.stringify({
-                        sessionId,
-                        type: 'github',
-                        data: {
-                            type: 'github',
-                            action: 'commit',
-                            repository: 'OWASP-BLT/Fresh',
-                            commitSha: 'abc123',
-                        },
-                    }),
-                });
+  function closeSb() {
+    document.getElementById('sidebar').classList.remove('open');
+    document.getElementById('sbOverlay').classList.remove('open');
+  }
 
-                const currentCount = parseInt(document.getElementById('githubEvents').textContent);
-                document.getElementById('githubEvents').textContent = currentCount + 1;
-                
-                log('GitHub commit tracked', 'success');
-
-            } catch (error) {
-                log('Failed to track GitHub event: ' + error.message, 'error');
-            }
-        }
-
-        async function trackAgentPrompt() {
-            if (!sessionId) return;
-
-            const userId = getUserId();
-            if (!userId) return;
-
-            try {
-                await fetch(`${getApiUrl()}/api/activity`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-User-ID': userId,
-                    },
-                    body: JSON.stringify({
-                        sessionId,
-                        type: 'agent-prompt',
-                        data: {
-                            type: 'agent-prompt',
-                            agentName: 'GitHub Copilot',
-                            promptLength: 150,
-                            responseLength: 500,
-                        },
-                    }),
-                });
-                
-                log('Agent prompt tracked: GitHub Copilot', 'success');
-
-            } catch (error) {
-                log('Failed to track agent prompt: ' + error.message, 'error');
-            }
-        }
-
-        async function getSummary() {
-            if (!sessionId) return;
-
-            const userId = getUserId();
-            if (!userId) return;
-
-            try {
-                const response = await fetch(`${getApiUrl()}/api/sessions/${sessionId}/summary`, {
-                    headers: {
-                        'X-User-ID': userId,
-                    },
-                });
-
-                const { summary } = await response.json();
-                
-                document.getElementById('githubEvents').textContent = summary.githubEvents;
-                document.getElementById('productivity').textContent = summary.productivity.toUpperCase();
-                
-                log('Summary generated: ' + summary.productivity + ' productivity', 'success');
-
-            } catch (error) {
-                log('Failed to get summary: ' + error.message, 'error');
-            }
-        }
-
-        // Initial log message
-        log('Dashboard ready. Configure your settings and start tracking!');
-    </script>
+  /* ── Init ── */
+  log('Dashboard ready. Configure your settings and start tracking!');
+</script>
 </body>
 </html>
