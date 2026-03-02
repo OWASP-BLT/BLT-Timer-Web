@@ -1,523 +1,529 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fresh Time Tracker - Dashboard</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BLT — Session Dashboard</title>
+  <meta name="description" content="BLT session tracking dashboard — privacy-focused developer productivity." />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: { brand: '#E10101' }
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #333;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-            color: white;
-            margin-bottom: 40px;
-        }
-
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-        }
-
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
-        }
-
-        .card {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .card h2 {
-            margin-bottom: 16px;
-            color: #667eea;
-        }
-
-        .controls {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 20px;
-        }
-
-        button {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn-primary {
-            background: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background: #5a67d8;
-            transform: translateY(-2px);
-        }
-
-        .btn-danger {
-            background: #f56565;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background: #e53e3e;
-        }
-
-        .btn-secondary {
-            background: #718096;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background: #4a5568;
-        }
-
-        input {
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 16px;
-            flex: 1;
-            min-width: 200px;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-
-        .status {
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            display: inline-block;
-            margin-bottom: 16px;
-        }
-
-        .status.active {
-            background: #48bb78;
-            color: white;
-        }
-
-        .status.inactive {
-            background: #cbd5e0;
-            color: #4a5568;
-        }
-
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 16px;
-            margin-top: 20px;
-        }
-
-        .stat-card {
-            background: #f7fafc;
-            padding: 16px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-
-        .stat-card h3 {
-            font-size: 0.9rem;
-            color: #718096;
-            margin-bottom: 8px;
-        }
-
-        .stat-card p {
-            font-size: 1.8rem;
-            font-weight: 700;
-            color: #2d3748;
-        }
-
-        .privacy-notice {
-            background: #edf2f7;
-            border-left: 4px solid #48bb78;
-            padding: 16px;
-            margin-top: 20px;
-        }
-
-        .privacy-notice h3 {
-            color: #2d3748;
-            margin-bottom: 8px;
-        }
-
-        .privacy-notice ul {
-            list-style: none;
-            padding-left: 0;
-        }
-
-        .privacy-notice li {
-            padding: 4px 0;
-            color: #4a5568;
-        }
-
-        .privacy-notice li::before {
-            content: "✓ ";
-            color: #48bb78;
-            font-weight: bold;
-            margin-right: 8px;
-        }
-
-        #log {
-            background: #2d3748;
-            color: #e2e8f0;
-            padding: 16px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 16px;
-        }
-
-        .log-entry {
-            padding: 4px 0;
-        }
-
-        .log-entry .timestamp {
-            color: #90cdf4;
-        }
-
-        .log-entry .success {
-            color: #48bb78;
-        }
-
-        .log-entry .error {
-            color: #f56565;
-        }
-    </style>
+      }
+    }
+  </script>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🕐 Fresh Time Tracker</h1>
-            <p>Privacy-focused developer productivity tracking</p>
-        </div>
+<body class="bg-gray-50 text-gray-800 antialiased">
 
-        <div class="card">
-            <h2>Configuration</h2>
-            <div class="controls">
-                <input type="text" id="apiUrl" placeholder="API URL (http://localhost:8787)" value="http://localhost:8787">
-                <input type="text" id="userId" placeholder="User ID">
-                <input type="text" id="projectId" placeholder="Project ID">
-            </div>
-        </div>
+  <!-- ===== STICKY NAVBAR ===== -->
+  <header class="fixed top-0 inset-x-0 z-50 bg-white border-b border-[#E5E5E5] shadow-sm">
+    <nav class="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-4" aria-label="Primary navigation">
 
-        <div class="card">
-            <h2>Session Control</h2>
-            <div id="status" class="status inactive">Not Tracking</div>
-            <div class="controls">
-                <button class="btn-primary" onclick="startTracking()">▶️ Start Session</button>
-                <button class="btn-secondary" onclick="pauseTracking()" disabled>⏸️ Pause</button>
-                <button class="btn-danger" onclick="stopTracking()" disabled>⏹️ Stop</button>
-            </div>
+      <!-- Logo -->
+      <a href="index.html" class="flex items-center gap-2 flex-shrink-0" aria-label="BLT home">
+        <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm" style="background:#E10101">
+          <i class="fa-solid fa-bug" aria-hidden="true"></i>
+        </span>
+        <span class="font-bold text-xl text-gray-900 tracking-tight">BLT</span>
+      </a>
 
-            <div class="stats" id="stats" style="display: none;">
-                <div class="stat-card">
-                    <h3>Session Duration</h3>
-                    <p id="duration">0m</p>
-                </div>
-                <div class="stat-card">
-                    <h3>GitHub Events</h3>
-                    <p id="githubEvents">0</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Activity Level</h3>
-                    <p id="activityLevel">-</p>
-                </div>
-                <div class="stat-card">
-                    <h3>Productivity</h3>
-                    <p id="productivity">-</p>
-                </div>
-            </div>
-        </div>
+      <!-- Desktop nav links -->
+      <ul class="hidden md:flex items-center gap-1 flex-1 ml-4" role="list">
+        <li><a href="https://blt.owasp.org/issues/" class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">Issues</a></li>
+        <li><a href="https://blt.owasp.org/hunt/" class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">Hunt</a></li>
+        <li><a href="dashboard.html" class="px-3 py-1.5 rounded-md text-sm font-medium text-[#E10101] underline underline-offset-2 hover:bg-gray-100 transition-colors" aria-current="page">Time Logs</a></li>
+        <li><a href="https://blt.owasp.org/leaderboard/" class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">Leaderboard</a></li>
+        <li><a href="https://blt.owasp.org/companies/" class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">Companies</a></li>
+      </ul>
 
-        <div class="card">
-            <h2>Activity Log</h2>
-            <div id="log"></div>
-        </div>
+      <!-- Right-side actions -->
+      <div class="hidden md:flex items-center gap-3 ml-auto">
+        <a href="index.html" class="border border-[#E10101] text-[#E10101] hover:bg-[#E10101] hover:text-white rounded-md px-4 py-1.5 text-sm font-semibold transition-colors">
+          Back to Home
+        </a>
+        <button onclick="startTracking()" class="bg-[#E10101] hover:bg-red-700 text-white rounded-md px-4 py-1.5 text-sm font-semibold transition-colors">
+          <i class="fa-solid fa-clock mr-1" aria-hidden="true"></i>Log Time
+        </button>
+        <!-- Avatar -->
+        <span class="w-8 h-8 rounded-full bg-[#E10101] text-white text-xs font-bold flex items-center justify-center select-none" title="AJ">AJ</span>
+      </div>
 
-        <div class="card">
-            <div class="privacy-notice">
-                <h3>🔒 Privacy Guarantee</h3>
-                <ul>
-                    <li>All screenshot analysis happens locally on your machine</li>
-                    <li>No screenshots or personal data uploaded to servers</li>
-                    <li>Only aggregate activity metrics collected</li>
-                    <li>Full control over what data is tracked</li>
-                    <li>Data encrypted at rest and in transit</li>
-                </ul>
-            </div>
-        </div>
+      <!-- Hamburger -->
+      <button id="menu-btn" class="md:hidden ml-auto p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobile-menu">
+        <i class="fa-solid fa-bars text-lg" aria-hidden="true"></i>
+      </button>
+    </nav>
+
+    <!-- Mobile menu -->
+    <div id="mobile-menu" class="md:hidden hidden border-t border-[#E5E5E5] bg-white px-4 pb-4 pt-2">
+      <ul class="flex flex-col gap-1" role="list">
+        <li><a href="https://blt.owasp.org/issues/" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">Issues</a></li>
+        <li><a href="https://blt.owasp.org/hunt/" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">Hunt</a></li>
+        <li><a href="dashboard.html" class="block px-3 py-2 rounded-md text-sm font-medium text-[#E10101] hover:bg-gray-100">Time Logs</a></li>
+        <li><a href="https://blt.owasp.org/leaderboard/" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">Leaderboard</a></li>
+        <li><a href="https://blt.owasp.org/companies/" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-gray-100">Companies</a></li>
+      </ul>
+      <div class="flex flex-col gap-2 mt-3 pt-3 border-t border-[#E5E5E5]">
+        <a href="index.html" class="text-center border border-[#E10101] text-[#E10101] hover:bg-[#E10101] hover:text-white rounded-md px-4 py-2 text-sm font-semibold transition-colors">Back to Home</a>
+        <button onclick="startTracking()" class="text-center bg-[#E10101] hover:bg-red-700 text-white rounded-md px-4 py-2 text-sm font-semibold transition-colors">Log Time</button>
+      </div>
     </div>
+  </header>
 
-    <script>
-        let sessionId = null;
-        let startTime = null;
-        let durationInterval = null;
+  <!-- ===== BODY: sidebar + main ===== -->
+  <div class="flex pt-16 min-h-screen">
 
-        function log(message, type = 'info') {
-            const logDiv = document.getElementById('log');
-            const timestamp = new Date().toLocaleTimeString();
-            const className = type === 'success' ? 'success' : type === 'error' ? 'error' : '';
-            logDiv.innerHTML += `<div class="log-entry"><span class="timestamp">[${timestamp}]</span> <span class="${className}">${message}</span></div>`;
-            logDiv.scrollTop = logDiv.scrollHeight;
-        }
+    <!-- ===== SIDEBAR ===== -->
+    <aside id="sidebar" class="hidden md:flex flex-col w-[210px] flex-shrink-0 fixed top-16 bottom-0 left-0 bg-white border-r border-[#E5E5E5] overflow-y-auto z-40">
+      <nav class="flex-1 px-3 py-5 space-y-6" aria-label="Sidebar navigation">
 
-        function getApiUrl() {
-            return document.getElementById('apiUrl').value || 'http://localhost:8787';
-        }
+        <!-- Main group -->
+        <div>
+          <p class="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400">Main</p>
+          <ul class="space-y-0.5" role="list">
+            <li>
+              <a href="dashboard.html" aria-current="page"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-bold bg-[#feeae9] text-[#E10101]">
+                <i class="fa-solid fa-clock w-4 text-center" aria-hidden="true"></i>Dashboard
+              </a>
+            </li>
+            <li>
+              <a href="https://blt.owasp.org/issues/"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <i class="fa-solid fa-bug w-4 text-center text-gray-400" aria-hidden="true"></i>My Issues
+              </a>
+            </li>
+            <li>
+              <a href="https://blt.owasp.org/hunt/"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <i class="fa-solid fa-crosshairs w-4 text-center text-gray-400" aria-hidden="true"></i>Bug Hunt
+              </a>
+            </li>
+          </ul>
+        </div>
 
-        function getUserId() {
-            const userId = document.getElementById('userId').value;
-            if (!userId) {
-                alert('Please enter a User ID');
-                return null;
-            }
-            return userId;
-        }
+        <!-- Analytics group -->
+        <div>
+          <p class="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400">Analytics</p>
+          <ul class="space-y-0.5" role="list">
+            <li>
+              <a href="#"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <i class="fa-solid fa-chart-line w-4 text-center text-gray-400" aria-hidden="true"></i>Reports
+              </a>
+            </li>
+            <li>
+              <a href="#"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <i class="fa-solid fa-lightbulb w-4 text-center text-gray-400" aria-hidden="true"></i>Insights
+              </a>
+            </li>
+            <li>
+              <a href="https://blt.owasp.org/leaderboard/"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <i class="fa-solid fa-trophy w-4 text-center text-gray-400" aria-hidden="true"></i>Leaderboard
+              </a>
+            </li>
+          </ul>
+        </div>
 
-        function getProjectId() {
-            const projectId = document.getElementById('projectId').value;
-            if (!projectId) {
-                alert('Please enter a Project ID');
-                return null;
-            }
-            return projectId;
-        }
+        <!-- Rewards group -->
+        <div>
+          <p class="px-3 mb-1 text-[10px] font-semibold uppercase tracking-widest text-gray-400">Rewards</p>
+          <ul class="space-y-0.5" role="list">
+            <li>
+              <a href="#"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <i class="fa-solid fa-bacon w-4 text-center text-gray-400" aria-hidden="true"></i>
+                <span class="flex-1">BACON Tokens</span>
+                <span class="text-[10px] font-bold bg-[#E10101] text-white px-1.5 py-0.5 rounded-full">NEW</span>
+              </a>
+            </li>
+            <li>
+              <a href="#"
+                class="flex items-center gap-2.5 px-3 py-2 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors">
+                <i class="fa-solid fa-dollar-sign w-4 text-center text-gray-400" aria-hidden="true"></i>Bounties
+              </a>
+            </li>
+          </ul>
+        </div>
 
-        async function startTracking() {
-            const userId = getUserId();
-            const projectId = getProjectId();
-            if (!userId || !projectId) return;
+      </nav>
+    </aside>
 
-            try {
-                const response = await fetch(`${getApiUrl()}/api/sessions/start`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-User-ID': userId,
-                    },
-                    body: JSON.stringify({ projectId }),
-                });
+    <!-- ===== MAIN CONTENT ===== -->
+    <main class="flex-1 md:ml-[210px] px-4 sm:px-6 lg:px-8 py-6 max-w-5xl w-full">
 
-                const data = await response.json();
-                sessionId = data.session.id;
-                startTime = Date.now();
+      <!-- Breadcrumb -->
+      <nav aria-label="Breadcrumb" class="mb-4 text-sm text-gray-500">
+        <ol class="flex items-center gap-1.5">
+          <li><a href="index.html" class="hover:text-[#E10101] transition-colors">Home</a></li>
+          <li><i class="fa-solid fa-chevron-right text-[10px] text-gray-400" aria-hidden="true"></i></li>
+          <li class="text-gray-800 font-medium" aria-current="page">Dashboard</li>
+        </ol>
+      </nav>
 
-                document.getElementById('status').className = 'status active';
-                document.getElementById('status').textContent = 'Tracking Active';
-                document.getElementById('stats').style.display = 'grid';
-                
-                document.querySelector('.btn-primary').disabled = true;
-                document.querySelector('.btn-secondary').disabled = false;
-                document.querySelector('.btn-danger').disabled = false;
+      <!-- Page header -->
+      <div class="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
+        <div>
+          <div class="flex items-center gap-3 mb-1">
+            <h1 class="text-2xl font-extrabold text-gray-900">Session Dashboard</h1>
+            <span class="inline-flex items-center gap-1.5 bg-green-50 border border-green-200 text-green-700 text-xs font-semibold px-2.5 py-1 rounded-full">
+              <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>Synced
+            </span>
+          </div>
+          <p class="text-sm text-gray-500">Privacy-focused developer productivity</p>
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button class="inline-flex items-center gap-1.5 border border-[#E10101] text-[#E10101] hover:bg-[#E10101] hover:text-white rounded-md px-3 py-1.5 text-sm font-semibold transition-colors">
+            <i class="fa-solid fa-download" aria-hidden="true"></i>Export
+          </button>
+          <button onclick="location.reload()" class="inline-flex items-center gap-1.5 border border-gray-300 text-gray-700 hover:bg-gray-100 rounded-md px-3 py-1.5 text-sm font-semibold transition-colors">
+            <i class="fa-solid fa-rotate-right" aria-hidden="true"></i>Refresh
+          </button>
+        </div>
+      </div>
 
-                log('Session started: ' + sessionId, 'success');
-                
-                // Start duration counter
-                durationInterval = setInterval(updateDuration, 1000);
+      <!-- ── Configuration card ── -->
+      <section class="bg-white rounded-lg shadow-sm border border-[#E5E5E5] p-6 mb-4">
+        <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-sliders text-[#E10101]" aria-hidden="true"></i>Configuration
+        </h2>
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div class="flex flex-col gap-1">
+            <label for="apiUrl" class="text-xs font-semibold text-gray-500 uppercase tracking-wide">API URL</label>
+            <input type="text" id="apiUrl" placeholder="http://localhost:8787" value="http://localhost:8787"
+              class="border border-gray-400 rounded-md px-4 py-2 text-sm focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="userId" class="text-xs font-semibold text-gray-500 uppercase tracking-wide">User ID</label>
+            <input type="text" id="userId" placeholder="Enter your user ID"
+              class="border border-gray-400 rounded-md px-4 py-2 text-sm focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition" />
+          </div>
+          <div class="flex flex-col gap-1">
+            <label for="projectId" class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Project ID</label>
+            <input type="text" id="projectId" placeholder="Enter project ID"
+              class="border border-gray-400 rounded-md px-4 py-2 text-sm focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-600 transition" />
+          </div>
+        </div>
+      </section>
 
-                // Simulate some activity
-                setTimeout(() => trackGithubEvent(), 3000);
-                setTimeout(() => trackAgentPrompt(), 6000);
+      <!-- ── Session Control card ── -->
+      <section class="bg-white rounded-lg shadow-sm border border-[#E5E5E5] p-6 mb-4">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-5">
+          <h2 class="text-base font-bold text-gray-900 flex items-center gap-2">
+            <i class="fa-solid fa-circle-play text-[#E10101]" aria-hidden="true"></i>Session Control
+          </h2>
+          <!-- Status badge -->
+          <span id="status"
+            class="inline-flex items-center gap-1.5 bg-gray-100 text-gray-500 border border-gray-200 text-xs font-semibold px-3 py-1.5 rounded-full self-start sm:self-auto">
+            <i class="fa-solid fa-circle text-[10px]" aria-hidden="true"></i>Not Tracking
+          </span>
+        </div>
 
-            } catch (error) {
-                log('Failed to start session: ' + error.message, 'error');
-            }
-        }
+        <!-- Control buttons -->
+        <div class="flex flex-wrap gap-3 mb-6">
+          <button id="btn-start" onclick="startTracking()"
+            class="inline-flex items-center gap-2 bg-[#E10101] hover:bg-red-700 text-white rounded-md px-5 py-2 text-sm font-semibold transition-colors shadow-sm">
+            <i class="fa-solid fa-play" aria-hidden="true"></i>Start Session
+          </button>
+          <button id="btn-pause" onclick="pauseTracking()" disabled
+            class="inline-flex items-center gap-2 border border-gray-300 text-gray-500 rounded-md px-5 py-2 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-gray-100">
+            <i class="fa-solid fa-pause" aria-hidden="true"></i>Pause
+          </button>
+          <button id="btn-stop" onclick="stopTracking()" disabled
+            class="inline-flex items-center gap-2 border border-gray-300 text-gray-500 rounded-md px-5 py-2 text-sm font-semibold transition-colors disabled:opacity-50 disabled:cursor-not-allowed hover:enabled:bg-gray-100">
+            <i class="fa-solid fa-stop" aria-hidden="true"></i>Stop
+          </button>
+        </div>
 
-        async function stopTracking() {
-            if (!sessionId) return;
+        <!-- Stats grid -->
+        <div id="stats" class="hidden grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-gray-50 rounded-lg border border-[#E5E5E5] p-4 border-t-4 border-t-[#E10101]">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Session Duration</p>
+            <p id="duration" class="text-2xl font-extrabold text-gray-900">0m</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg border border-[#E5E5E5] p-4 border-t-4 border-t-blue-500">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">GitHub Events</p>
+            <p id="githubEvents" class="text-2xl font-extrabold text-gray-900">0</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg border border-[#E5E5E5] p-4 border-t-4 border-t-purple-500">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Activity Level</p>
+            <p id="activityLevel" class="text-2xl font-extrabold text-gray-900">—</p>
+          </div>
+          <div class="bg-gray-50 rounded-lg border border-[#E5E5E5] p-4 border-t-4 border-t-green-500">
+            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Productivity</p>
+            <p id="productivity" class="text-2xl font-extrabold text-gray-900">—</p>
+          </div>
+        </div>
+      </section>
 
-            const userId = getUserId();
-            if (!userId) return;
+      <!-- ── Activity Log card ── -->
+      <section class="bg-white rounded-lg shadow-sm border border-[#E5E5E5] p-6 mb-4">
+        <h2 class="text-base font-bold text-gray-900 mb-4 flex items-center gap-2">
+          <i class="fa-solid fa-terminal text-[#E10101]" aria-hidden="true"></i>Activity Log
+        </h2>
+        <div id="log"
+          class="bg-[#111827] rounded-lg p-4 font-mono text-sm text-gray-300 max-h-72 overflow-y-auto space-y-1">
+        </div>
+      </section>
 
-            try {
-                const response = await fetch(`${getApiUrl()}/api/sessions/${sessionId}/end`, {
-                    method: 'POST',
-                    headers: {
-                        'X-User-ID': userId,
-                    },
-                });
+      <!-- ── Privacy card ── -->
+      <section class="bg-white rounded-lg shadow-sm border border-[#E5E5E5] border-l-4 border-l-green-500 p-6 mb-4">
+        <h2 class="text-base font-bold text-gray-900 mb-3 flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved text-green-600" aria-hidden="true"></i>Privacy Guarantee
+        </h2>
+        <ul class="space-y-2 text-sm text-gray-600">
+          <li class="flex items-start gap-2">
+            <i class="fa-solid fa-check text-green-500 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+            All screenshot analysis happens locally on your machine
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fa-solid fa-check text-green-500 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+            No screenshots or personal data uploaded to servers
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fa-solid fa-check text-green-500 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+            Only aggregate activity metrics collected
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fa-solid fa-check text-green-500 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+            Full control over what data is tracked
+          </li>
+          <li class="flex items-start gap-2">
+            <i class="fa-solid fa-check text-green-500 mt-0.5 flex-shrink-0" aria-hidden="true"></i>
+            Data encrypted at rest and in transit
+          </li>
+        </ul>
+      </section>
 
-                const data = await response.json();
-                
-                document.getElementById('status').className = 'status inactive';
-                document.getElementById('status').textContent = 'Not Tracking';
-                
-                document.querySelector('.btn-primary').disabled = false;
-                document.querySelector('.btn-secondary').disabled = true;
-                document.querySelector('.btn-danger').disabled = true;
+    </main>
+  </div><!-- end flex wrapper -->
 
-                clearInterval(durationInterval);
-                
-                log('Session ended. Duration: ' + Math.floor(data.session.duration / 1000 / 60) + ' minutes', 'success');
-                
-                // Get summary
-                await getSummary();
-                
-                sessionId = null;
-                startTime = null;
+  <script>
+    // ── Hamburger toggle ──
+    document.getElementById('menu-btn').addEventListener('click', function () {
+      const menu = document.getElementById('mobile-menu');
+      const expanded = this.getAttribute('aria-expanded') === 'true';
+      this.setAttribute('aria-expanded', String(!expanded));
+      menu.classList.toggle('hidden');
+    });
 
-            } catch (error) {
-                log('Failed to end session: ' + error.message, 'error');
-            }
-        }
+    // ── Session state ──
+    let sessionId = null;
+    let startTime = null;
+    let durationInterval = null;
 
-        async function pauseTracking() {
-            if (!sessionId) return;
+    function log(message, type = 'info') {
+      const logDiv = document.getElementById('log');
+      const timestamp = new Date().toLocaleTimeString();
+      let colorClass = 'text-gray-300';
+      if (type === 'success') colorClass = 'text-green-400';
+      if (type === 'error')   colorClass = 'text-red-400';
+      logDiv.innerHTML +=
+        `<div class="leading-relaxed"><span class="text-blue-400">[${timestamp}]</span> <span class="${colorClass}">${message}</span></div>`;
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
 
-            const userId = getUserId();
-            if (!userId) return;
+    function getApiUrl() {
+      return document.getElementById('apiUrl').value || 'http://localhost:8787';
+    }
 
-            try {
-                await fetch(`${getApiUrl()}/api/sessions/${sessionId}/pause`, {
-                    method: 'POST',
-                    headers: {
-                        'X-User-ID': userId,
-                    },
-                });
+    function getUserId() {
+      const userId = document.getElementById('userId').value;
+      if (!userId) { alert('Please enter a User ID'); return null; }
+      return userId;
+    }
 
-                document.getElementById('status').className = 'status inactive';
-                document.getElementById('status').textContent = 'Paused';
-                
-                clearInterval(durationInterval);
-                
-                log('Session paused', 'success');
+    function getProjectId() {
+      const projectId = document.getElementById('projectId').value;
+      if (!projectId) { alert('Please enter a Project ID'); return null; }
+      return projectId;
+    }
 
-            } catch (error) {
-                log('Failed to pause session: ' + error.message, 'error');
-            }
-        }
+    async function startTracking() {
+      const userId = getUserId();
+      const projectId = getProjectId();
+      if (!userId || !projectId) return;
 
-        function updateDuration() {
-            if (!startTime) return;
-            const duration = Math.floor((Date.now() - startTime) / 1000 / 60);
-            document.getElementById('duration').textContent = duration + 'm';
-        }
+      try {
+        const response = await fetch(`${getApiUrl()}/api/sessions/start`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-User-ID': userId },
+          body: JSON.stringify({ projectId }),
+        });
 
-        async function trackGithubEvent() {
-            if (!sessionId) return;
+        const data = await response.json();
+        sessionId = data.session.id;
+        startTime = Date.now();
 
-            const userId = getUserId();
-            if (!userId) return;
+        const statusEl = document.getElementById('status');
+        statusEl.className = 'inline-flex items-center gap-1.5 bg-green-50 text-green-700 border border-green-200 text-xs font-semibold px-3 py-1.5 rounded-full self-start sm:self-auto';
+        statusEl.innerHTML = '<i class="fa-solid fa-circle text-[10px] text-green-500" aria-hidden="true"></i>Tracking Active';
 
-            try {
-                await fetch(`${getApiUrl()}/api/activity`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-User-ID': userId,
-                    },
-                    body: JSON.stringify({
-                        sessionId,
-                        type: 'github',
-                        data: {
-                            type: 'github',
-                            action: 'commit',
-                            repository: 'OWASP-BLT/Fresh',
-                            commitSha: 'abc123',
-                        },
-                    }),
-                });
+        const statsEl = document.getElementById('stats');
+        statsEl.classList.remove('hidden');
+        statsEl.classList.add('grid');
 
-                const currentCount = parseInt(document.getElementById('githubEvents').textContent);
-                document.getElementById('githubEvents').textContent = currentCount + 1;
-                
-                log('GitHub commit tracked', 'success');
+        document.getElementById('btn-start').disabled = true;
+        document.getElementById('btn-pause').disabled = false;
+        document.getElementById('btn-stop').disabled  = false;
 
-            } catch (error) {
-                log('Failed to track GitHub event: ' + error.message, 'error');
-            }
-        }
+        log('Session started: ' + sessionId, 'success');
 
-        async function trackAgentPrompt() {
-            if (!sessionId) return;
+        durationInterval = setInterval(updateDuration, 1000);
 
-            const userId = getUserId();
-            if (!userId) return;
+        setTimeout(() => trackGithubEvent(), 3000);
+        setTimeout(() => trackAgentPrompt(), 6000);
 
-            try {
-                await fetch(`${getApiUrl()}/api/activity`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-User-ID': userId,
-                    },
-                    body: JSON.stringify({
-                        sessionId,
-                        type: 'agent-prompt',
-                        data: {
-                            type: 'agent-prompt',
-                            agentName: 'GitHub Copilot',
-                            promptLength: 150,
-                            responseLength: 500,
-                        },
-                    }),
-                });
-                
-                log('Agent prompt tracked: GitHub Copilot', 'success');
+      } catch (error) {
+        log('Failed to start session: ' + error.message, 'error');
+      }
+    }
 
-            } catch (error) {
-                log('Failed to track agent prompt: ' + error.message, 'error');
-            }
-        }
+    async function stopTracking() {
+      if (!sessionId) return;
+      const userId = getUserId();
+      if (!userId) return;
 
-        async function getSummary() {
-            if (!sessionId) return;
+      try {
+        const response = await fetch(`${getApiUrl()}/api/sessions/${sessionId}/end`, {
+          method: 'POST',
+          headers: { 'X-User-ID': userId },
+        });
 
-            const userId = getUserId();
-            if (!userId) return;
+        const data = await response.json();
 
-            try {
-                const response = await fetch(`${getApiUrl()}/api/sessions/${sessionId}/summary`, {
-                    headers: {
-                        'X-User-ID': userId,
-                    },
-                });
+        const statusEl = document.getElementById('status');
+        statusEl.className = 'inline-flex items-center gap-1.5 bg-gray-100 text-gray-500 border border-gray-200 text-xs font-semibold px-3 py-1.5 rounded-full self-start sm:self-auto';
+        statusEl.innerHTML = '<i class="fa-solid fa-circle text-[10px]" aria-hidden="true"></i>Not Tracking';
 
-                const { summary } = await response.json();
-                
-                document.getElementById('githubEvents').textContent = summary.githubEvents;
-                document.getElementById('productivity').textContent = summary.productivity.toUpperCase();
-                
-                log('Summary generated: ' + summary.productivity + ' productivity', 'success');
+        document.getElementById('btn-start').disabled = false;
+        document.getElementById('btn-pause').disabled = true;
+        document.getElementById('btn-stop').disabled  = true;
 
-            } catch (error) {
-                log('Failed to get summary: ' + error.message, 'error');
-            }
-        }
+        clearInterval(durationInterval);
 
-        // Initial log message
-        log('Dashboard ready. Configure your settings and start tracking!');
-    </script>
+        log('Session ended. Duration: ' + Math.floor(data.session.duration / 1000 / 60) + ' minutes', 'success');
+
+        await getSummary();
+
+        sessionId = null;
+        startTime  = null;
+
+      } catch (error) {
+        log('Failed to end session: ' + error.message, 'error');
+      }
+    }
+
+    async function pauseTracking() {
+      if (!sessionId) return;
+      const userId = getUserId();
+      if (!userId) return;
+
+      try {
+        await fetch(`${getApiUrl()}/api/sessions/${sessionId}/pause`, {
+          method: 'POST',
+          headers: { 'X-User-ID': userId },
+        });
+
+        const statusEl = document.getElementById('status');
+        statusEl.className = 'inline-flex items-center gap-1.5 bg-yellow-50 text-yellow-700 border border-yellow-200 text-xs font-semibold px-3 py-1.5 rounded-full self-start sm:self-auto';
+        statusEl.innerHTML = '<i class="fa-solid fa-circle text-[10px] text-yellow-500" aria-hidden="true"></i>Paused';
+
+        clearInterval(durationInterval);
+
+        log('Session paused', 'success');
+
+      } catch (error) {
+        log('Failed to pause session: ' + error.message, 'error');
+      }
+    }
+
+    function updateDuration() {
+      if (!startTime) return;
+      const duration = Math.floor((Date.now() - startTime) / 1000 / 60);
+      document.getElementById('duration').textContent = duration + 'm';
+    }
+
+    async function trackGithubEvent() {
+      if (!sessionId) return;
+      const userId = getUserId();
+      if (!userId) return;
+
+      try {
+        await fetch(`${getApiUrl()}/api/activity`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-User-ID': userId },
+          body: JSON.stringify({
+            sessionId,
+            type: 'github',
+            data: { type: 'github', action: 'commit', repository: 'OWASP-BLT/Fresh', commitSha: 'abc123' },
+          }),
+        });
+
+        const currentCount = parseInt(document.getElementById('githubEvents').textContent) || 0;
+        document.getElementById('githubEvents').textContent = currentCount + 1;
+
+        log('GitHub commit tracked', 'success');
+
+      } catch (error) {
+        log('Failed to track GitHub event: ' + error.message, 'error');
+      }
+    }
+
+    async function trackAgentPrompt() {
+      if (!sessionId) return;
+      const userId = getUserId();
+      if (!userId) return;
+
+      try {
+        await fetch(`${getApiUrl()}/api/activity`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'X-User-ID': userId },
+          body: JSON.stringify({
+            sessionId,
+            type: 'agent-prompt',
+            data: { type: 'agent-prompt', agentName: 'GitHub Copilot', promptLength: 150, responseLength: 500 },
+          }),
+        });
+
+        log('Agent prompt tracked: GitHub Copilot', 'success');
+
+      } catch (error) {
+        log('Failed to track agent prompt: ' + error.message, 'error');
+      }
+    }
+
+    async function getSummary() {
+      if (!sessionId) return;
+      const userId = getUserId();
+      if (!userId) return;
+
+      try {
+        const response = await fetch(`${getApiUrl()}/api/sessions/${sessionId}/summary`, {
+          headers: { 'X-User-ID': userId },
+        });
+
+        const { summary } = await response.json();
+
+        document.getElementById('githubEvents').textContent = summary.githubEvents;
+        document.getElementById('productivity').textContent = summary.productivity.toUpperCase();
+
+        log('Summary generated: ' + summary.productivity + ' productivity', 'success');
+
+      } catch (error) {
+        log('Failed to get summary: ' + error.message, 'error');
+      }
+    }
+
+    // Initial log message
+    log('Dashboard ready. Configure your settings and start tracking!');
+  </script>
 </body>
 </html>
