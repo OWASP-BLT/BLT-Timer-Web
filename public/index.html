@@ -1,301 +1,328 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>BLT — Bug Hunting Time Tracker</title>
-  <meta name="description" content="BLT is a privacy-first, open-source time tracker built for bug hunters and security researchers. Track sessions, earn BACON rewards, and sync with GitHub." />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <meta name="description" content="BLT is a privacy-first, open-source time tracker built for bug hunters and security researchers. Track sessions, earn BACON rewards, and sync with GitHub."/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: '#E10101',
-          }
-        }
-      }
-    }
-  </script>
+  <style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Oxygen,Ubuntu,sans-serif;background:#fff;color:#1f2937;-webkit-font-smoothing:antialiased;font-size:16px;line-height:1.5}
+a{text-decoration:none;color:inherit}
+ul{list-style:none}
+
+/* ── NAV ── */
+.nav{position:fixed;top:0;left:0;right:0;z-index:200;height:64px;background:#fff;border-bottom:1px solid #E5E5E5;display:flex;align-items:center;padding:0 1.5rem;gap:.75rem;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.nav-logo{display:flex;align-items:center;gap:.5rem;flex-shrink:0}
+.nav-logo-icon{width:34px;height:34px;background:#E10101;border-radius:8px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:15px}
+.nav-logo-text{font-weight:800;font-size:1.25rem;color:#111827;letter-spacing:-.02em}
+.nav-links{display:flex;align-items:center;gap:2px;flex:1;margin-left:.75rem;overflow-x:auto;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nl{padding:6px 12px;border-radius:6px;font-size:.875rem;font-weight:500;color:#4b5563;white-space:nowrap;transition:all .15s}
+.nl:hover{background:#f3f4f6;color:#111827}
+.nl.active{color:#E10101;text-decoration:underline;text-underline-offset:3px;font-weight:600}
+.nav-actions{display:flex;align-items:center;gap:.625rem;flex-shrink:0;margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:.375rem;padding:7px 16px;border-radius:6px;font-size:.875rem;font-weight:600;cursor:pointer;transition:all .15s;white-space:nowrap;border:none;font-family:inherit}
+.btn-outline{background:#fff;border:1.5px solid #E10101;color:#E10101}
+.btn-outline:hover{background:#E10101;color:#fff}
+.btn-primary{background:#E10101;color:#fff;border:1.5px solid #E10101}
+.btn-primary:hover{background:#b91c1c;border-color:#b91c1c}
+.hbg{display:none;background:none;border:none;cursor:pointer;padding:6px;color:#4b5563;align-items:center;margin-left:auto;border-radius:6px;font-size:18px}
+.hbg:hover{background:#f3f4f6}
+/* Mobile nav */
+#mob-nav{display:none;background:#fff;border-top:1px solid #E5E5E5;padding:.75rem 1.5rem 1rem;position:fixed;top:64px;left:0;right:0;z-index:190;box-shadow:0 8px 24px rgba(0,0,0,.1)}
+#mob-nav.open{display:block}
+#mob-nav a{display:block;padding:10px 8px;font-size:.9375rem;font-weight:500;color:#374151;border-radius:6px}
+#mob-nav a:hover{background:#f9fafb;color:#E10101}
+.mob-actions{display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem;padding-top:.75rem;border-top:1px solid #f3f4f6}
+.mob-actions a{text-align:center}
+
+/* ── HERO ── */
+.hero{padding:7rem 1.5rem 4rem;background:linear-gradient(160deg,#fff9f9 0%,#fff 60%,#f9fafb 100%)}
+.hero-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;gap:3.5rem;flex-wrap:wrap}
+.hero-content{flex:1;min-width:280px}
+.hero-badge{display:inline-flex;align-items:center;gap:.5rem;background:#fef2f2;border:1px solid #fecaca;color:#E10101;border-radius:100px;padding:4px 14px;font-size:.75rem;font-weight:700;margin-bottom:1.5rem;letter-spacing:.02em}
+.hero-title{font-size:3.25rem;font-weight:900;line-height:1.08;color:#111827;margin-bottom:1.25rem;letter-spacing:-.02em}
+.hero-title span{color:#E10101}
+.hero-sub{font-size:1.125rem;color:#6b7280;line-height:1.75;margin-bottom:2rem;max-width:520px}
+.hero-ctas{display:flex;gap:.75rem;flex-wrap:wrap}
+.hero-cta-p{display:inline-flex;align-items:center;gap:.5rem;background:#E10101;color:#fff;border-radius:8px;padding:12px 24px;font-size:1rem;font-weight:700;transition:background .15s;box-shadow:0 4px 14px rgba(225,1,1,.25)}
+.hero-cta-p:hover{background:#b91c1c}
+.hero-cta-o{display:inline-flex;align-items:center;gap:.5rem;border:2px solid #E10101;color:#E10101;border-radius:8px;padding:11px 22px;font-size:1rem;font-weight:700;transition:all .15s}
+.hero-cta-o:hover{background:#E10101;color:#fff}
+.hero-graphic{flex:1;min-width:260px;max-width:520px}
+.terminal{background:#111827;border-radius:12px;padding:1.25rem;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden}
+.term-bar{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.td{width:11px;height:11px;border-radius:50%}
+.term-title{font-size:.75rem;color:#6b7280;margin-left:6px;font-family:'Courier New',monospace}
+.term-body{font-family:'Courier New',monospace;font-size:.8125rem;line-height:1.9;color:#e5e7eb}
+.tc-p{color:#60a5fa}.tc-g{color:#34d399}.tc-y{color:#fbbf24}.tc-r{color:#f87171}.tc-d{color:#6b7280}
+
+/* ── STATS BAR ── */
+.stats-bar{background:#111827;padding:1.75rem 1.5rem}
+.stats-inner{max-width:1200px;margin:0 auto;display:flex;justify-content:space-around;gap:2rem;flex-wrap:wrap}
+.stat-item{text-align:center}
+.stat-num{font-size:2rem;font-weight:900;color:#E10101;letter-spacing:-.02em;line-height:1}
+.stat-label{font-size:.8125rem;color:#9ca3af;margin-top:4px;font-weight:500;letter-spacing:.02em}
+
+/* ── FEATURES ── */
+.features{padding:5.5rem 1.5rem;max-width:1200px;margin:0 auto}
+.sec-hd{text-align:center;margin-bottom:3.5rem}
+.sec-title{font-size:2.25rem;font-weight:900;color:#111827;margin-bottom:.75rem;letter-spacing:-.02em}
+.sec-sub{font-size:1rem;color:#6b7280;max-width:560px;margin:0 auto;line-height:1.75}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1.5rem}
+.feat-card{background:#fff;border:1px solid #E5E5E5;border-radius:12px;padding:1.75rem;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:box-shadow .2s,transform .2s}
+.feat-card:hover{box-shadow:0 12px 32px rgba(0,0,0,.08);transform:translateY(-3px)}
+.feat-icon{width:48px;height:48px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1.375rem;margin-bottom:1rem}
+.fi-r{background:#fef2f2;color:#E10101}.fi-b{background:#eff6ff;color:#2563eb}.fi-g{background:#f0fdf4;color:#16a34a}.fi-y{background:#fefce8;color:#ca8a04}
+.feat-title{font-size:1.0625rem;font-weight:700;color:#111827;margin-bottom:.5rem}
+.feat-desc{font-size:.875rem;color:#6b7280;line-height:1.75}
+
+/* ── HOW IT WORKS ── */
+.how{background:#f9fafb;padding:5rem 1.5rem;border-top:1px solid #E5E5E5;border-bottom:1px solid #E5E5E5}
+.how-inner{max-width:1200px;margin:0 auto}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:2.5rem;margin-top:3rem}
+.step{text-align:center;position:relative}
+.step-num{width:52px;height:52px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.6875rem;font-weight:700;color:#fff;margin:0 auto 1rem;text-transform:uppercase;letter-spacing:.08em}
+.sn-r{background:#E10101;box-shadow:0 4px 14px rgba(225,1,1,.3)}.sn-b{background:#2563eb;box-shadow:0 4px 14px rgba(37,99,235,.3)}.sn-g{background:#16a34a;box-shadow:0 4px 14px rgba(22,163,74,.3)}
+.step-title{font-size:1.125rem;font-weight:700;color:#111827;margin-bottom:.5rem}
+.step-desc{font-size:.875rem;color:#6b7280;line-height:1.75}
+.step-lbl{font-size:.6875rem;font-weight:700;text-transform:uppercase;letter-spacing:.1em;margin-bottom:.375rem}
+.step-lbl-r{color:#E10101}.step-lbl-b{color:#2563eb}.step-lbl-g{color:#16a34a}
+
+/* ── CTA ── */
+.cta-section{background:#111827;padding:5.5rem 1.5rem;text-align:center}
+.cta-title{font-size:2.5rem;font-weight:900;color:#fff;margin-bottom:.875rem;letter-spacing:-.02em}
+.cta-sub{font-size:1.0625rem;color:#9ca3af;margin-bottom:2.25rem;max-width:480px;margin-left:auto;margin-right:auto;line-height:1.75}
+.cta-note{font-size:.8125rem;color:#6b7280;margin-top:.875rem}
+
+/* ── FOOTER ── */
+footer{background:#fff;border-top:1px solid #E5E5E5;padding:1.5rem}
+.foot-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.foot-logo{display:flex;align-items:center;gap:.5rem}
+.foot-links{display:flex;gap:1.25rem}
+.foot-links a{font-size:.8125rem;color:#6b7280;transition:color .15s}
+.foot-links a:hover{color:#E10101}
+.foot-copy{font-size:.8125rem;color:#9ca3af}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  .nav-links,.nav-actions{display:none}
+  .hbg{display:flex}
+  .hero-inner{flex-direction:column;gap:2.5rem}
+  .hero-title{font-size:2.25rem}
+  .hero{padding:5.5rem 1rem 3rem}
+  .features{padding:3.5rem 1rem}
+  .cta-title{font-size:1.75rem}
+  .feat-grid,.steps{grid-template-columns:1fr 1fr}
+  .hero-graphic{order:-1;width:100%}
+}
+@media(max-width:480px){
+  .nav{padding:0 1rem}
+  .feat-grid,.steps{grid-template-columns:1fr}
+  .stats-inner{gap:1.5rem}
+  .stat-num{font-size:1.5rem}
+}
+  </style>
 </head>
-<body class="bg-white text-gray-800 antialiased">
+<body>
 
-  <!-- ===== STICKY NAV ===== -->
-  <header class="fixed top-0 inset-x-0 z-50 bg-white border-b border-[#E5E5E5] shadow-sm">
-    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center gap-4" aria-label="Primary navigation">
-
-      <!-- Logo -->
-      <a href="/" class="flex items-center gap-2 flex-shrink-0" aria-label="BLT home">
-        <span class="w-8 h-8 rounded-lg flex items-center justify-center text-white text-sm" style="background:#E10101">
-          <i class="fa-solid fa-bug" aria-hidden="true"></i>
-        </span>
-        <span class="font-bold text-xl text-gray-900 tracking-tight">BLT</span>
-      </a>
-
-      <!-- Desktop nav links -->
-      <ul class="hidden md:flex items-center gap-1 flex-1 ml-4" role="list">
-        <li><a href="https://blt.owasp.org/issues/" class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">Issues</a></li>
-        <li><a href="https://blt.owasp.org/hunt/" class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">Hunt</a></li>
-        <li><a href="dashboard.html" class="px-3 py-1.5 rounded-md text-sm font-medium text-red-600 underline underline-offset-2 hover:bg-gray-100 transition-colors">Time Logs</a></li>
-        <li><a href="https://blt.owasp.org/leaderboard/" class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">Leaderboard</a></li>
-        <li><a href="https://blt.owasp.org/companies/" class="px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors">Companies</a></li>
-      </ul>
-
-      <!-- Right-side actions -->
-      <div class="hidden md:flex items-center gap-3 ml-auto">
-        <a href="https://blt.owasp.org/accounts/login/" class="border border-[#E10101] text-[#E10101] hover:bg-[#E10101] hover:text-white rounded-md px-4 py-2 text-sm font-semibold transition-colors">
-          Sign In
-        </a>
-        <a href="dashboard.html" class="bg-[#E10101] hover:bg-red-700 text-white rounded-md px-4 py-2 text-sm font-semibold transition-colors">
-          Get Started
-        </a>
-      </div>
-
-      <!-- Hamburger -->
-      <button id="menu-btn" class="md:hidden ml-auto p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors" aria-label="Toggle mobile menu" aria-expanded="false" aria-controls="mobile-menu">
-        <i class="fa-solid fa-bars text-lg" aria-hidden="true"></i>
-      </button>
-    </nav>
-
-    <!-- Mobile menu -->
-    <div id="mobile-menu" class="md:hidden hidden border-t border-[#E5E5E5] bg-white px-4 pb-4 pt-2">
-      <ul class="flex flex-col gap-1" role="list">
-        <li><a href="https://blt.owasp.org/issues/" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Issues</a></li>
-        <li><a href="https://blt.owasp.org/hunt/" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Hunt</a></li>
-        <li><a href="dashboard.html" class="block px-3 py-2 rounded-md text-sm font-medium text-red-600 hover:bg-gray-100">Time Logs</a></li>
-        <li><a href="https://blt.owasp.org/leaderboard/" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Leaderboard</a></li>
-        <li><a href="https://blt.owasp.org/companies/" class="block px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-100">Companies</a></li>
-      </ul>
-      <div class="flex flex-col gap-2 mt-3 pt-3 border-t border-[#E5E5E5]">
-        <a href="https://blt.owasp.org/accounts/login/" class="text-center border border-[#E10101] text-[#E10101] hover:bg-[#E10101] hover:text-white rounded-md px-4 py-2 text-sm font-semibold transition-colors">Sign In</a>
-        <a href="dashboard.html" class="text-center bg-[#E10101] hover:bg-red-700 text-white rounded-md px-4 py-2 text-sm font-semibold transition-colors">Get Started</a>
-      </div>
+<!-- NAV -->
+<header>
+  <nav class="nav" aria-label="Main navigation">
+    <a class="nav-logo" href="/" aria-label="BLT home">
+      <div class="nav-logo-icon" aria-hidden="true"><i class="fa-solid fa-bug"></i></div>
+      <span class="nav-logo-text">BLT</span>
+    </a>
+    <ul class="nav-links" role="list">
+      <li><a class="nl" href="https://blt.owasp.org/issues/">Issues</a></li>
+      <li><a class="nl" href="https://blt.owasp.org/hunt/">Hunt</a></li>
+      <li><a class="nl active" href="dashboard.html" aria-current="page">Time Logs</a></li>
+      <li><a class="nl" href="https://blt.owasp.org/leaderboard/">Leaderboard</a></li>
+      <li><a class="nl" href="https://blt.owasp.org/companies/">Companies</a></li>
+    </ul>
+    <div class="nav-actions">
+      <a class="btn btn-outline" href="https://blt.owasp.org/accounts/login/">Sign In</a>
+      <a class="btn btn-primary" href="dashboard.html"><i class="fa-solid fa-rocket" aria-hidden="true"></i> Get Started</a>
     </div>
-  </header>
+    <button class="hbg" id="hambtn" onclick="toggleMob()" aria-label="Toggle navigation" aria-expanded="false" aria-controls="mob-nav">
+      <i class="fa-solid fa-bars" aria-hidden="true"></i>
+    </button>
+  </nav>
+  <!-- Mobile nav -->
+  <div id="mob-nav" role="navigation" aria-label="Mobile navigation">
+    <a href="https://blt.owasp.org/issues/">Issues</a>
+    <a href="https://blt.owasp.org/hunt/">Hunt</a>
+    <a href="dashboard.html" style="color:#E10101;font-weight:600">Time Logs</a>
+    <a href="https://blt.owasp.org/leaderboard/">Leaderboard</a>
+    <a href="https://blt.owasp.org/companies/">Companies</a>
+    <div class="mob-actions">
+      <a class="btn btn-outline" href="https://blt.owasp.org/accounts/login/" style="justify-content:center">Sign In</a>
+      <a class="btn btn-primary" href="dashboard.html" style="justify-content:center"><i class="fa-solid fa-rocket" aria-hidden="true"></i> Get Started</a>
+    </div>
+  </div>
+</header>
 
-  <main>
+<main>
 
-    <!-- ===== HERO ===== -->
-    <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-b from-gray-50 to-white">
-      <div class="max-w-4xl mx-auto text-center">
-
-        <!-- Badge -->
-        <div class="inline-flex items-center gap-2 bg-red-50 border border-red-200 text-red-700 text-xs font-semibold px-4 py-1.5 rounded-full mb-8">
+  <!-- HERO -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="hero-inner">
+      <div class="hero-content">
+        <div class="hero-badge">
           <i class="fa-solid fa-shield-halved" aria-hidden="true"></i>
           Open Source &middot; Privacy First &middot; OWASP
         </div>
-
-        <!-- Headline -->
-        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight mb-6">
-          Track Your<br />
-          <span style="color:#E10101">Bug Hunting</span> Time
+        <h1 class="hero-title" id="hero-title">
+          Track Your<br><span>Bug&nbsp;Hunting</span>&nbsp;Time
         </h1>
-
-        <!-- Subheadline -->
-        <p class="text-lg sm:text-xl text-gray-500 max-w-2xl mx-auto mb-10 leading-relaxed">
-          BLT gives security researchers and bug hunters a privacy-focused way to log sessions, measure productivity, and earn rewards — all without exposing your workflow to third parties.
+        <p class="hero-sub">
+          BLT gives security researchers and bug hunters a privacy-focused way to log sessions, measure productivity, and earn BACON rewards — all without exposing your workflow to third parties.
         </p>
-
-        <!-- CTAs -->
-        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-          <a href="dashboard.html" class="w-full sm:w-auto text-center bg-[#E10101] hover:bg-red-700 text-white rounded-md px-6 py-3 text-base font-semibold transition-colors shadow-sm">
-            <i class="fa-solid fa-rocket mr-2" aria-hidden="true"></i>Get Started Free
+        <div class="hero-ctas">
+          <a class="hero-cta-p" href="dashboard.html">
+            <i class="fa-solid fa-rocket" aria-hidden="true"></i> Get Started Free
           </a>
-          <a href="dashboard.html" class="w-full sm:w-auto text-center border border-[#E10101] text-[#E10101] hover:bg-[#E10101] hover:text-white rounded-md px-6 py-3 text-base font-semibold transition-colors">
-            <i class="fa-solid fa-gauge-high mr-2" aria-hidden="true"></i>View Dashboard
+          <a class="hero-cta-o" href="dashboard.html">
+            <i class="fa-solid fa-gauge-high" aria-hidden="true"></i> View Dashboard
           </a>
         </div>
-
-        <!-- Hero graphic placeholder -->
-        <div class="mt-16 rounded-xl border border-[#E5E5E5] shadow-lg overflow-hidden bg-[#1F2937] p-6 max-w-3xl mx-auto text-left">
-          <div class="flex items-center gap-2 mb-4">
-            <span class="w-3 h-3 rounded-full bg-red-500"></span>
-            <span class="w-3 h-3 rounded-full bg-yellow-400"></span>
-            <span class="w-3 h-3 rounded-full bg-green-400"></span>
-            <span class="ml-3 text-gray-400 text-xs font-mono">blt-timer — session active</span>
-          </div>
-          <div class="font-mono text-sm text-green-400 space-y-1">
-            <p><span class="text-gray-500">$</span> blt start-session --project owasp-juice-shop</p>
-            <p class="text-yellow-300">⏱  Session started at 09:14:32</p>
-            <p><span class="text-gray-500">$</span> blt log --type recon --note "Mapped all API endpoints"</p>
-            <p class="text-blue-300">✔  Activity logged · +12 BACON points</p>
-            <p><span class="text-gray-500">$</span> blt status</p>
-            <p>Session: <span class="text-white">02h 37m</span> · Today: <span class="text-white">04h 12m</span> · Streak: <span class="text-yellow-300">7 days 🔥</span></p>
-          </div>
-        </div>
       </div>
-    </section>
-
-    <!-- ===== STATS BAR ===== -->
-    <section class="bg-[#111827] text-white py-10 px-4" aria-label="Platform statistics">
-      <div class="max-w-5xl mx-auto grid grid-cols-2 sm:grid-cols-4 gap-8 text-center">
-        <div>
-          <p class="text-3xl font-extrabold" style="color:#E10101">10,000+</p>
-          <p class="text-sm text-gray-400 mt-1">Developers</p>
-        </div>
-        <div>
-          <p class="text-3xl font-extrabold" style="color:#E10101">500K+</p>
-          <p class="text-sm text-gray-400 mt-1">Hours Tracked</p>
-        </div>
-        <div>
-          <p class="text-3xl font-extrabold" style="color:#E10101">99.9%</p>
-          <p class="text-sm text-gray-400 mt-1">Uptime</p>
-        </div>
-        <div>
-          <p class="text-3xl font-extrabold" style="color:#E10101">100%</p>
-          <p class="text-sm text-gray-400 mt-1">Private</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== FEATURES ===== -->
-    <section id="features" class="py-20 px-4 sm:px-6 lg:px-8 bg-white">
-      <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-14">
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">Everything a Bug Hunter Needs</h2>
-          <p class="text-gray-500 text-lg max-w-2xl mx-auto">Purpose-built features that fit naturally into your security research workflow — from the first recon scan to the final report.</p>
-        </div>
-
-        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-
-          <!-- Card 1: Time Tracking -->
-          <div class="border border-[#E5E5E5] rounded-xl p-6 hover:shadow-md transition-shadow">
-            <div class="w-11 h-11 rounded-lg bg-red-100 flex items-center justify-center mb-4">
-              <i class="fa-solid fa-clock text-[#E10101] text-xl" aria-hidden="true"></i>
-            </div>
-            <h3 class="font-bold text-gray-900 text-lg mb-2">Time Tracking</h3>
-            <p class="text-gray-500 text-sm leading-relaxed">Start and stop sessions with a single click. BLT automatically accumulates daily, weekly, and per-project totals so you always know where your hours go. Detailed breakdowns help you spot productive patterns and eliminate wasted time.</p>
+      <div class="hero-graphic" aria-hidden="true">
+        <div class="terminal">
+          <div class="term-bar">
+            <div class="td" style="background:#ff5f57"></div>
+            <div class="td" style="background:#febc2e"></div>
+            <div class="td" style="background:#28c840"></div>
+            <span class="term-title">blt-timer — session active</span>
           </div>
-
-          <!-- Card 2: GitHub Integration -->
-          <div class="border border-[#E5E5E5] rounded-xl p-6 hover:shadow-md transition-shadow">
-            <div class="w-11 h-11 rounded-lg bg-blue-100 flex items-center justify-center mb-4">
-              <i class="fa-solid fa-code-branch text-blue-600 text-xl" aria-hidden="true"></i>
-            </div>
-            <h3 class="font-bold text-gray-900 text-lg mb-2">GitHub Integration</h3>
-            <p class="text-gray-500 text-sm leading-relaxed">Link sessions directly to GitHub issues and pull requests. Time entries are annotated with commit hashes, repo names, and issue numbers so your logs double as an audit trail. Works seamlessly with OWASP BLT issues out of the box.</p>
-          </div>
-
-          <!-- Card 3: Privacy First -->
-          <div class="border border-[#E5E5E5] rounded-xl p-6 hover:shadow-md transition-shadow">
-            <div class="w-11 h-11 rounded-lg bg-green-100 flex items-center justify-center mb-4">
-              <i class="fa-solid fa-shield text-green-600 text-xl" aria-hidden="true"></i>
-            </div>
-            <h3 class="font-bold text-gray-900 text-lg mb-2">Privacy First</h3>
-            <p class="text-gray-500 text-sm leading-relaxed">No telemetry, no behavioral analytics, no selling of your data. Every time entry belongs to you — export it at any time in JSON or CSV format. BLT is open source, fully auditable, and hosted under the OWASP umbrella.</p>
-          </div>
-
-          <!-- Card 4: BACON Rewards -->
-          <div class="border border-[#E5E5E5] rounded-xl p-6 hover:shadow-md transition-shadow">
-            <div class="w-11 h-11 rounded-lg bg-yellow-100 flex items-center justify-center mb-4">
-              <i class="fa-solid fa-coins text-yellow-500 text-xl" aria-hidden="true"></i>
-            </div>
-            <h3 class="font-bold text-gray-900 text-lg mb-2">BACON Rewards</h3>
-            <p class="text-gray-500 text-sm leading-relaxed">Earn BACON points for every logged session, reported bug, and day-streak maintained. Climb the leaderboard, unlock badges, and redeem points within the OWASP BLT ecosystem. Staying productive has never tasted so good.</p>
-          </div>
-
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== HOW IT WORKS ===== -->
-    <section id="how-it-works" class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
-      <div class="max-w-5xl mx-auto">
-        <div class="text-center mb-14">
-          <h2 class="text-3xl sm:text-4xl font-extrabold text-gray-900 mb-4">Up and Running in Minutes</h2>
-          <p class="text-gray-500 text-lg max-w-xl mx-auto">Three simple steps from sign-up to your first tracked session.</p>
-        </div>
-
-        <div class="grid sm:grid-cols-3 gap-8 relative">
-          <!-- Connector line (desktop) -->
-          <div class="hidden sm:block absolute top-10 left-1/6 right-1/6 h-0.5 bg-[#E5E5E5] -z-0"></div>
-
-          <!-- Step 1 -->
-          <div class="relative text-center z-10">
-            <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 border-4 border-white shadow-md" style="background:#E10101">
-              <i class="fa-solid fa-play text-white text-2xl" aria-hidden="true"></i>
-            </div>
-            <span class="inline-block text-xs font-bold text-[#E10101] uppercase tracking-widest mb-2">Step 1</span>
-            <h3 class="font-bold text-gray-900 text-lg mb-2">Start a Session</h3>
-            <p class="text-gray-500 text-sm leading-relaxed">Sign in with your OWASP BLT account, pick a project or bug program, and hit <strong>Start</strong>. BLT begins recording the moment you click.</p>
-          </div>
-
-          <!-- Step 2 -->
-          <div class="relative text-center z-10">
-            <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 border-4 border-white shadow-md bg-blue-600">
-              <i class="fa-solid fa-list-check text-white text-2xl" aria-hidden="true"></i>
-            </div>
-            <span class="inline-block text-xs font-bold text-blue-600 uppercase tracking-widest mb-2">Step 2</span>
-            <h3 class="font-bold text-gray-900 text-lg mb-2">Track Activity</h3>
-            <p class="text-gray-500 text-sm leading-relaxed">Log notes, tag activities (recon, exploit, report), and link to GitHub issues as you work. Everything is timestamped and searchable from your dashboard.</p>
-          </div>
-
-          <!-- Step 3 -->
-          <div class="relative text-center z-10">
-            <div class="w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-5 border-4 border-white shadow-md bg-yellow-500">
-              <i class="fa-solid fa-trophy text-white text-2xl" aria-hidden="true"></i>
-            </div>
-            <span class="inline-block text-xs font-bold text-yellow-600 uppercase tracking-widest mb-2">Step 3</span>
-            <h3 class="font-bold text-gray-900 text-lg mb-2">Earn Rewards</h3>
-            <p class="text-gray-500 text-sm leading-relaxed">Stop your session when done. BACON points are awarded automatically based on hours logged and bugs reported. Watch your rank rise on the global leaderboard.</p>
+          <div class="term-body">
+            <p><span class="tc-p">$</span> blt start-session --project owasp-juice-shop</p>
+            <p><span class="tc-g">⏱</span> Session started at 09:14:32</p>
+            <p class="tc-d">&nbsp;</p>
+            <p><span class="tc-p">$</span> blt log --type recon --note <span class="tc-y">"Mapped all API endpoints"</span></p>
+            <p><span class="tc-g">✔</span> Activity logged · +12 BACON points</p>
+            <p class="tc-d">&nbsp;</p>
+            <p><span class="tc-p">$</span> blt status</p>
+            <p><span class="tc-y">"Session: 02h 37m · Today: 04h 12m · Streak: 7 days 🔥"</span></p>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- ===== CTA SECTION ===== -->
-    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-[#111827]">
-      <div class="max-w-2xl mx-auto text-center">
-        <h2 class="text-3xl sm:text-4xl font-extrabold text-white mb-4">Ready to Track Your Productivity?</h2>
-        <p class="text-gray-400 text-lg mb-8">Join thousands of security researchers already using BLT to measure, improve, and get rewarded for their work.</p>
-        <a href="dashboard.html" class="inline-flex items-center gap-2 bg-[#E10101] hover:bg-red-700 text-white rounded-md px-8 py-3 text-base font-semibold transition-colors shadow-sm">
-          <i class="fa-solid fa-bolt" aria-hidden="true"></i>
-          Get Started Free
-        </a>
-        <p class="mt-4 text-sm text-gray-500">No credit card required &middot; Open source &middot; OWASP project</p>
-      </div>
-    </section>
-
-  </main>
-
-  <!-- ===== FOOTER ===== -->
-  <footer class="bg-white border-t border-[#E5E5E5] py-8 px-4 sm:px-6">
-    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-gray-500">
-      <a href="/" class="flex items-center gap-2" aria-label="BLT home">
-        <span class="w-6 h-6 rounded flex items-center justify-center text-white text-xs" style="background:#E10101">
-          <i class="fa-solid fa-bug" aria-hidden="true"></i>
-        </span>
-        <span class="font-bold text-gray-800">BLT</span>
-      </a>
-      <p>&copy; <span id="year"></span> OWASP BLT. Open source under the <a href="https://github.com/OWASP-BLT/BLT/blob/main/LICENSE" class="underline hover:text-gray-800">AGPL-3.0 License</a>.</p>
-      <div class="flex items-center gap-4">
-        <a href="https://github.com/OWASP-BLT/BLT" class="hover:text-gray-800 transition-colors" aria-label="GitHub repository">
-          <i class="fa-brands fa-github text-lg" aria-hidden="true"></i>
-        </a>
-        <a href="https://owasp.org" class="hover:text-gray-800 transition-colors">OWASP</a>
-        <a href="dashboard.html" class="hover:text-gray-800 transition-colors">Dashboard</a>
       </div>
     </div>
-  </footer>
+  </section>
 
-  <script>
-    // Dynamic year in footer
-    document.getElementById('year').textContent = new Date().getFullYear();
+  <!-- STATS BAR -->
+  <section class="stats-bar" aria-label="Platform statistics">
+    <div class="stats-inner">
+      <div class="stat-item"><div class="stat-num">10,000+</div><div class="stat-label">Developers</div></div>
+      <div class="stat-item"><div class="stat-num">500K+</div><div class="stat-label">Hours Tracked</div></div>
+      <div class="stat-item"><div class="stat-num">99.9%</div><div class="stat-label">Uptime</div></div>
+      <div class="stat-item"><div class="stat-num">100%</div><div class="stat-label">Private</div></div>
+    </div>
+  </section>
 
-    // Mobile hamburger toggle
-    const menuBtn = document.getElementById('menu-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    menuBtn.addEventListener('click', function () {
-      const isOpen = !mobileMenu.classList.contains('hidden');
-      mobileMenu.classList.toggle('hidden', isOpen);
-      menuBtn.setAttribute('aria-expanded', String(!isOpen));
-      menuBtn.querySelector('i').className = isOpen
-        ? 'fa-solid fa-bars text-lg'
-        : 'fa-solid fa-xmark text-lg';
-    });
-  </script>
+  <!-- FEATURES -->
+  <section aria-labelledby="feat-title">
+    <div class="features">
+      <div class="sec-hd">
+        <h2 class="sec-title" id="feat-title">Everything a Bug Hunter Needs</h2>
+        <p class="sec-sub">Purpose-built features that fit naturally into your security research workflow — from the first recon scan to the final report.</p>
+      </div>
+      <div class="feat-grid" role="list">
+        <article class="feat-card" role="listitem">
+          <div class="feat-icon fi-r" aria-hidden="true"><i class="fa-solid fa-clock"></i></div>
+          <h3 class="feat-title">Time Tracking</h3>
+          <p class="feat-desc">Start and stop sessions with a single click. BLT automatically accumulates daily, weekly, and per-project totals so you always know where your hours go. Detailed breakdowns help you spot productive patterns and eliminate wasted time.</p>
+        </article>
+        <article class="feat-card" role="listitem">
+          <div class="feat-icon fi-b" aria-hidden="true"><i class="fa-solid fa-code-branch"></i></div>
+          <h3 class="feat-title">GitHub Integration</h3>
+          <p class="feat-desc">Link sessions directly to GitHub issues and pull requests. Time entries are annotated with commit hashes, repo names, and issue numbers so your logs double as an audit trail. Works seamlessly with OWASP BLT issues out of the box.</p>
+        </article>
+        <article class="feat-card" role="listitem">
+          <div class="feat-icon fi-g" aria-hidden="true"><i class="fa-solid fa-shield"></i></div>
+          <h3 class="feat-title">Privacy First</h3>
+          <p class="feat-desc">No telemetry, no behavioral analytics, no selling of your data. Every time entry belongs to you — export it at any time in JSON or CSV format. BLT is open source, fully auditable, and hosted under the OWASP umbrella.</p>
+        </article>
+        <article class="feat-card" role="listitem">
+          <div class="feat-icon fi-y" aria-hidden="true"><i class="fa-solid fa-coins"></i></div>
+          <h3 class="feat-title">BACON Rewards</h3>
+          <p class="feat-desc">Earn BACON points for every logged session, reported bug, and day-streak maintained. Climb the leaderboard, unlock badges, and redeem points within the OWASP BLT ecosystem. Staying productive has never tasted so good.</p>
+        </article>
+      </div>
+    </div>
+  </section>
 
+  <!-- HOW IT WORKS -->
+  <section class="how" aria-labelledby="how-title">
+    <div class="how-inner">
+      <div class="sec-hd">
+        <h2 class="sec-title" id="how-title">Up and Running in Minutes</h2>
+        <p class="sec-sub">Three simple steps from sign-up to your first tracked session.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num sn-r" aria-hidden="true"><i class="fa-solid fa-play"></i></div>
+          <p class="step-lbl step-lbl-r">Step 1</p>
+          <h3 class="step-title">Start a Session</h3>
+          <p class="step-desc">Sign in with your OWASP BLT account, pick a project or bug program, and hit <strong>Start</strong>. BLT begins recording the moment you click.</p>
+        </div>
+        <div class="step">
+          <div class="step-num sn-b" aria-hidden="true"><i class="fa-solid fa-list-check"></i></div>
+          <p class="step-lbl step-lbl-b">Step 2</p>
+          <h3 class="step-title">Track Activity</h3>
+          <p class="step-desc">Log notes, tag activities (recon, exploit, report), and link to GitHub issues as you work. Everything is timestamped and searchable from your dashboard.</p>
+        </div>
+        <div class="step">
+          <div class="step-num sn-g" aria-hidden="true"><i class="fa-solid fa-trophy"></i></div>
+          <p class="step-lbl step-lbl-g">Step 3</p>
+          <h3 class="step-title">Earn Rewards</h3>
+          <p class="step-desc">Stop your session when done. BACON points are awarded automatically based on hours logged and bugs reported. Watch your rank rise on the global leaderboard.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="cta-section" aria-labelledby="cta-title">
+    <h2 class="cta-title" id="cta-title">Ready to Track Your Productivity?</h2>
+    <p class="cta-sub">Join thousands of security researchers already using BLT to measure, improve, and get rewarded for their work.</p>
+    <a class="btn btn-primary" href="dashboard.html" style="font-size:1rem;padding:12px 28px;display:inline-flex;border-radius:8px">
+      <i class="fa-solid fa-rocket" aria-hidden="true"></i> Get Started Free
+    </a>
+    <p class="cta-note">No credit card required &middot; Open source &middot; OWASP project</p>
+  </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer>
+  <div class="foot-inner">
+    <a class="foot-logo" href="/" aria-label="BLT home">
+      <div class="nav-logo-icon" aria-hidden="true" style="width:28px;height:28px;font-size:12px"><i class="fa-solid fa-bug"></i></div>
+      <span class="nav-logo-text" style="font-size:1rem">BLT</span>
+    </a>
+    <div class="foot-links">
+      <a href="https://github.com/OWASP-BLT/BLT" aria-label="GitHub repository"><i class="fa-brands fa-github" aria-hidden="true"></i> GitHub</a>
+      <a href="https://owasp.org">OWASP</a>
+      <a href="dashboard.html">Dashboard</a>
+    </div>
+    <p class="foot-copy">&copy; <span id="yr"></span> OWASP BLT &mdash; <a href="https://github.com/OWASP-BLT/BLT/blob/main/LICENSE" style="color:#E10101">AGPL-3.0</a></p>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('yr').textContent = new Date().getFullYear();
+  function toggleMob(){
+    const m=document.getElementById('mob-nav');
+    const b=document.getElementById('hambtn');
+    const open=m.classList.toggle('open');
+    b.setAttribute('aria-expanded',open);
+    b.querySelector('i').className=open?'fa-solid fa-xmark':'fa-solid fa-bars';
+  }
+</script>
 </body>
 </html>
