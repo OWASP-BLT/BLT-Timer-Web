@@ -317,11 +317,17 @@ async def handle_get_summary(request, env, session_id):
         if t == "github":
             summary["githubEvents"] += 1
         elif t == "keyboard":
-            summary["keyboardActivity"] += 1
-            summary["activeTime"] += event.get("data", {}).get("activeTime", 0)
+            data = event.get("data", {})
+            summary["keyboardActivity"] += data.get("keypressCount", 1)
+            summary["activeTime"] += data.get("activeTime", 0)
         elif t == "mouse":
-            summary["mouseActivity"] += 1
-            summary["activeTime"] += event.get("data", {}).get("activeTime", 0)
+            data = event.get("data", {})
+            summary["mouseActivity"] += (
+                data.get("moveCount", 0)
+                + data.get("clickCount", 0)
+                + data.get("scrollCount", 0)
+            ) or 1
+            summary["activeTime"] += data.get("activeTime", 0)
         elif t == "agent-prompt":
             summary["agentPrompts"] += 1
         elif t == "screenshot":
