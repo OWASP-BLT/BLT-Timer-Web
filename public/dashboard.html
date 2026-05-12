@@ -390,8 +390,9 @@
                 document.querySelector('.btn-danger').disabled = true;
 
                 clearInterval(durationInterval);
-                await flushActivityMetrics();
-                stopActivityMonitoring();
+                if (await flushActivityMetrics()) {
+                    stopActivityMonitoring();
+                }
                 
                 log('Session ended. Duration: ' + Math.floor(data.session.duration / 1000 / 60) + ' minutes', 'success');
                 
@@ -424,8 +425,9 @@
                 document.getElementById('status').textContent = 'Paused';
                 
                 clearInterval(durationInterval);
-                await flushActivityMetrics();
-                stopActivityMonitoring();
+                if (await flushActivityMetrics()) {
+                    stopActivityMonitoring();
+                }
                 
                 log('Session paused', 'success');
 
@@ -559,10 +561,10 @@
         }
 
         async function flushActivityMetrics() {
-            if (!activityMetrics || !sessionId) return;
+            if (!activityMetrics || !sessionId) return true;
 
             const metrics = activityMetrics;
-            if (metrics.keyboardCount === 0 && metrics.mouseCount === 0) return;
+            if (metrics.keyboardCount === 0 && metrics.mouseCount === 0) return true;
             activityMetrics = createActivityMetrics();
             updateActivityStats();
 
@@ -573,6 +575,7 @@
                 ]);
 
                 log(`Activity tracked: ${metrics.keyboardCount} keyboard, ${metrics.mouseCount} mouse`, 'success');
+                return true;
             } catch (error) {
                 if (activityMetrics) {
                     activityMetrics.keyboardCount += metrics.keyboardCount;
@@ -582,6 +585,7 @@
                     updateActivityStats();
                 }
                 log('Failed to track activity: ' + error.message, 'error');
+                return false;
             }
         }
 
