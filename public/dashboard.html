@@ -249,6 +249,14 @@
                     <p id="githubEvents">0</p>
                 </div>
                 <div class="stat-card">
+                    <h3>Keyboard Events</h3>
+                    <p id="keyboardEvents">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Mouse Events</h3>
+                    <p id="mouseEvents">0</p>
+                </div>
+                <div class="stat-card">
                     <h3>Activity Level</h3>
                     <p id="activityLevel">-</p>
                 </div>
@@ -282,6 +290,11 @@
         let sessionId = null;
         let startTime = null;
         let durationInterval = null;
+        let activityFlushInterval = null;
+        let activityMetrics = null;
+        let activityListenersAttached = false;
+        const ACTIVITY_FLUSH_MS = 30000;
+        const ACTIVE_EVENT_GAP_MS = 5000;
 
         function log(message, type = 'info') {
             const logDiv = document.getElementById('log');
@@ -344,6 +357,7 @@
                 
                 // Start duration counter
                 durationInterval = setInterval(updateDuration, 1000);
+                startActivityMonitoring();
 
                 // Simulate some activity
                 setTimeout(() => trackGithubEvent(), 3000);
@@ -378,6 +392,8 @@
                 document.querySelector('.btn-danger').disabled = true;
 
                 clearInterval(durationInterval);
+                await flushActivityMetrics();
+                stopActivityMonitoring();
                 
                 log('Session ended. Duration: ' + Math.floor(data.session.duration / 1000 / 60) + ' minutes', 'success');
                 
@@ -410,6 +426,8 @@
                 document.getElementById('status').textContent = 'Paused';
                 
                 clearInterval(durationInterval);
+                await flushActivityMetrics();
+                stopActivityMonitoring();
                 
                 log('Session paused', 'success');
 
@@ -422,6 +440,134 @@
             if (!startTime) return;
             const duration = Math.floor((Date.now() - startTime) / 1000 / 60);
             document.getElementById('duration').textContent = duration + 'm';
+        }
+
+        function createActivityMetrics() {
+            return {
+                keyboardCount: 0,
+                mouseCount: 0,
+                keyboardActiveTime: 0,
+                mouseActiveTime: 0,
+                lastKeyboardAt: null,
+                lastMouseAt: null,
+                startedAt: Date.now(),
+            };
+        }
+
+        function recordActivity(kind) {
+            if (!activityMetrics || !sessionId) return;
+
+            const now = Date.now();
+            const countKey = kind + 'Count';
+            const activeTimeKey = kind + 'ActiveTime';
+            const lastAtKey = kind === 'keyboard' ? 'lastKeyboardAt' : 'lastMouseAt';
+            const lastAt = activityMetrics[lastAtKey];
+
+            activityMetrics[countKey] += 1;
+            if (lastAt && now - lastAt <= ACTIVE_EVENT_GAP_MS) {
+                activityMetrics[activeTimeKey] += now - lastAt;
+            }
+            activityMetrics[lastAtKey] = now;
+            updateActivityStats();
+        }
+
+        function handleKeyboardActivity(event) {
+            if (event.repeat) return;
+            recordActivity('keyboard');
+        }
+
+        function handleMouseActivity() {
+            recordActivity('mouse');
+        }
+
+        function startActivityMonitoring() {
+            activityMetrics = createActivityMetrics();
+            updateActivityStats();
+
+            if (!activityListenersAttached) {
+                window.addEventListener('keydown', handleKeyboardActivity, { passive: true });
+                window.addEventListener('mousedown', handleMouseActivity, { passive: true });
+                window.addEventListener('mousemove', handleMouseActivity, { passive: true });
+                window.addEventListener('wheel', handleMouseActivity, { passive: true });
+                activityListenersAttached = true;
+            }
+
+            activityFlushInterval = setInterval(flushActivityMetrics, ACTIVITY_FLUSH_MS);
+            log('Keyboard and mouse activity monitoring started', 'success');
+        }
+
+        function stopActivityMonitoring() {
+            if (activityFlushInterval) {
+                clearInterval(activityFlushInterval);
+                activityFlushInterval = null;
+            }
+
+            if (activityListenersAttached) {
+                window.removeEventListener('keydown', handleKeyboardActivity);
+                window.removeEventListener('mousedown', handleMouseActivity);
+                window.removeEventListener('mousemove', handleMouseActivity);
+                window.removeEventListener('wheel', handleMouseActivity);
+                activityListenersAttached = false;
+            }
+
+            activityMetrics = null;
+        }
+
+        function updateActivityStats() {
+            if (!activityMetrics) return;
+
+            const totalEvents = activityMetrics.keyboardCount + activityMetrics.mouseCount;
+            const elapsedSeconds = Math.max((Date.now() - activityMetrics.startedAt) / 1000, 1);
+            const eventsPerMinute = Math.round((totalEvents / elapsedSeconds) * 60);
+
+            document.getElementById('keyboardEvents').textContent = activityMetrics.keyboardCount;
+            document.getElementById('mouseEvents').textContent = activityMetrics.mouseCount;
+            document.getElementById('activityLevel').textContent = eventsPerMinute + '/m';
+        }
+
+        async function sendActivityEvent(type, count, activeTime) {
+            if (!sessionId || count === 0) return;
+
+            const userId = getUserId();
+            if (!userId) return;
+
+            await fetch(`${getApiUrl()}/api/activity`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-ID': userId,
+                },
+                body: JSON.stringify({
+                    sessionId,
+                    type,
+                    data: {
+                        type,
+                        count,
+                        activeTime,
+                        intervalMs: ACTIVITY_FLUSH_MS,
+                    },
+                }),
+            });
+        }
+
+        async function flushActivityMetrics() {
+            if (!activityMetrics || !sessionId) return;
+
+            const metrics = activityMetrics;
+            if (metrics.keyboardCount === 0 && metrics.mouseCount === 0) return;
+
+            try {
+                await Promise.all([
+                    sendActivityEvent('keyboard', metrics.keyboardCount, metrics.keyboardActiveTime),
+                    sendActivityEvent('mouse', metrics.mouseCount, metrics.mouseActiveTime),
+                ]);
+
+                log(`Activity tracked: ${metrics.keyboardCount} keyboard, ${metrics.mouseCount} mouse`, 'success');
+                activityMetrics = createActivityMetrics();
+                updateActivityStats();
+            } catch (error) {
+                log('Failed to track activity: ' + error.message, 'error');
+            }
         }
 
         async function trackGithubEvent() {
@@ -507,6 +653,8 @@
                 const { summary } = await response.json();
                 
                 document.getElementById('githubEvents').textContent = summary.githubEvents;
+                document.getElementById('keyboardEvents').textContent = summary.keyboardActivity;
+                document.getElementById('mouseEvents').textContent = summary.mouseActivity;
                 document.getElementById('productivity').textContent = summary.productivity.toUpperCase();
                 
                 log('Summary generated: ' + summary.productivity + ' productivity', 'success');
