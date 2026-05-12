@@ -293,8 +293,10 @@
         let activityFlushInterval = null;
         let activityMetrics = null;
         let activityListenersAttached = false;
+        let lastMouseMoveAt = 0;
         const ACTIVITY_FLUSH_MS = 30000;
         const ACTIVE_EVENT_GAP_MS = 5000;
+        const MOUSE_MOVE_THROTTLE_MS = 1000;
 
         function log(message, type = 'info') {
             const logDiv = document.getElementById('log');
@@ -358,10 +360,6 @@
                 // Start duration counter
                 durationInterval = setInterval(updateDuration, 1000);
                 startActivityMonitoring();
-
-                // Simulate some activity
-                setTimeout(() => trackGithubEvent(), 3000);
-                setTimeout(() => trackAgentPrompt(), 6000);
 
             } catch (error) {
                 log('Failed to start session: ' + error.message, 'error');
@@ -476,12 +474,18 @@
             recordActivity('keyboard');
         }
 
-        function handleMouseActivity() {
+        function handleMouseActivity(event) {
+            if (event.type === 'mousemove') {
+                const now = Date.now();
+                if (now - lastMouseMoveAt < MOUSE_MOVE_THROTTLE_MS) return;
+                lastMouseMoveAt = now;
+            }
             recordActivity('mouse');
         }
 
         function startActivityMonitoring() {
             activityMetrics = createActivityMetrics();
+            lastMouseMoveAt = 0;
             updateActivityStats();
 
             if (!activityListenersAttached) {
@@ -555,6 +559,8 @@
 
             const metrics = activityMetrics;
             if (metrics.keyboardCount === 0 && metrics.mouseCount === 0) return;
+            activityMetrics = createActivityMetrics();
+            updateActivityStats();
 
             try {
                 await Promise.all([
@@ -563,9 +569,14 @@
                 ]);
 
                 log(`Activity tracked: ${metrics.keyboardCount} keyboard, ${metrics.mouseCount} mouse`, 'success');
-                activityMetrics = createActivityMetrics();
-                updateActivityStats();
             } catch (error) {
+                if (activityMetrics) {
+                    activityMetrics.keyboardCount += metrics.keyboardCount;
+                    activityMetrics.mouseCount += metrics.mouseCount;
+                    activityMetrics.keyboardActiveTime += metrics.keyboardActiveTime;
+                    activityMetrics.mouseActiveTime += metrics.mouseActiveTime;
+                    updateActivityStats();
+                }
                 log('Failed to track activity: ' + error.message, 'error');
             }
         }
