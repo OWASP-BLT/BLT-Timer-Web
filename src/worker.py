@@ -64,6 +64,15 @@ def _row_to_activity(row):
     }
 
 
+def _non_negative_int(payload, key, default=0):
+    if not isinstance(payload, dict):
+        return default
+    try:
+        return max(int(payload.get(key, default)), 0)
+    except (TypeError, ValueError):
+        return default
+
+
 # ---------------------------------------------------------------------------
 # Route handlers
 # ---------------------------------------------------------------------------
@@ -317,11 +326,17 @@ async def handle_get_summary(request, env, session_id):
         if t == "github":
             summary["githubEvents"] += 1
         elif t == "keyboard":
-            summary["keyboardActivity"] += 1
-            summary["activeTime"] += event.get("data", {}).get("activeTime", 0)
+            data = event.get("data")
+            summary["keyboardActivity"] += _non_negative_int(data, "keypressCount", 1)
+            summary["activeTime"] += _non_negative_int(data, "activeTime", 0)
         elif t == "mouse":
-            summary["mouseActivity"] += 1
-            summary["activeTime"] += event.get("data", {}).get("activeTime", 0)
+            data = event.get("data")
+            summary["mouseActivity"] += (
+                _non_negative_int(data, "moveCount", 0)
+                + _non_negative_int(data, "clickCount", 0)
+                + _non_negative_int(data, "scrollCount", 0)
+            ) or 1
+            summary["activeTime"] += _non_negative_int(data, "activeTime", 0)
         elif t == "agent-prompt":
             summary["agentPrompts"] += 1
         elif t == "screenshot":

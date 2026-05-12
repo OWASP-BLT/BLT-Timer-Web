@@ -282,6 +282,17 @@
         let sessionId = null;
         let startTime = null;
         let durationInterval = null;
+        let activityFlushInterval = null;
+        let activityTickInterval = null;
+        let trackingPaused = false;
+        let lastActivityAt = 0;
+        const activityBuffer = {
+            keypressCount: 0,
+            mouseMoveCount: 0,
+            mouseClickCount: 0,
+            scrollCount: 0,
+            activeTime: 0,
+        };
 
         function log(message, type = 'info') {
             const logDiv = document.getElementById('log');
@@ -331,6 +342,7 @@
                 const data = await response.json();
                 sessionId = data.session.id;
                 startTime = Date.now();
+                trackingPaused = false;
 
                 document.getElementById('status').className = 'status active';
                 document.getElementById('status').textContent = 'Tracking Active';
@@ -338,16 +350,14 @@
                 
                 document.querySelector('.btn-primary').disabled = true;
                 document.querySelector('.btn-secondary').disabled = false;
+                document.querySelector('.btn-secondary').textContent = '⏸️ Pause';
                 document.querySelector('.btn-danger').disabled = false;
 
                 log('Session started: ' + sessionId, 'success');
                 
                 // Start duration counter
                 durationInterval = setInterval(updateDuration, 1000);
-
-                // Simulate some activity
-                setTimeout(() => trackGithubEvent(), 3000);
-                setTimeout(() => trackAgentPrompt(), 6000);
+                startActivityTracking();
 
             } catch (error) {
                 log('Failed to start session: ' + error.message, 'error');
@@ -378,6 +388,8 @@
                 document.querySelector('.btn-danger').disabled = true;
 
                 clearInterval(durationInterval);
+                await flushActivity();
+                stopActivityTracking();
                 
                 log('Session ended. Duration: ' + Math.floor(data.session.duration / 1000 / 60) + ' minutes', 'success');
                 
@@ -386,6 +398,7 @@
                 
                 sessionId = null;
                 startTime = null;
+                trackingPaused = false;
 
             } catch (error) {
                 log('Failed to end session: ' + error.message, 'error');
@@ -399,22 +412,35 @@
             if (!userId) return;
 
             try {
-                await fetch(`${getApiUrl()}/api/sessions/${sessionId}/pause`, {
+                const action = trackingPaused ? 'resume' : 'pause';
+                const response = await fetch(`${getApiUrl()}/api/sessions/${sessionId}/${action}`, {
                     method: 'POST',
                     headers: {
                         'X-User-ID': userId,
                     },
                 });
+                if (!response.ok) {
+                    throw new Error(`Failed to ${action} session (${response.status} ${response.statusText})`);
+                }
 
-                document.getElementById('status').className = 'status inactive';
-                document.getElementById('status').textContent = 'Paused';
-                
-                clearInterval(durationInterval);
-                
-                log('Session paused', 'success');
+                trackingPaused = !trackingPaused;
+                document.getElementById('status').className = trackingPaused ? 'status inactive' : 'status active';
+                document.getElementById('status').textContent = trackingPaused ? 'Paused' : 'Tracking Active';
+                document.querySelector('.btn-secondary').textContent = trackingPaused ? '▶️ Resume' : '⏸️ Pause';
+
+                if (trackingPaused) {
+                    clearInterval(durationInterval);
+                    await flushActivity();
+                    log('Session paused', 'success');
+                } else {
+                    startTime = Date.now() - getDisplayedDurationMs();
+                    durationInterval = setInterval(updateDuration, 1000);
+                    markActivity();
+                    log('Session resumed', 'success');
+                }
 
             } catch (error) {
-                log('Failed to pause session: ' + error.message, 'error');
+                log('Failed to update session: ' + error.message, 'error');
             }
         }
 
@@ -422,6 +448,145 @@
             if (!startTime) return;
             const duration = Math.floor((Date.now() - startTime) / 1000 / 60);
             document.getElementById('duration').textContent = duration + 'm';
+        }
+
+        function getDisplayedDurationMs() {
+            const text = document.getElementById('duration').textContent || '0m';
+            const minutes = parseInt(text, 10);
+            return Number.isFinite(minutes) ? minutes * 60 * 1000 : 0;
+        }
+
+        function markActivity() {
+            if (!sessionId || trackingPaused) return;
+            lastActivityAt = Date.now();
+        }
+
+        function recordKeyboardActivity() {
+            if (!sessionId || trackingPaused) return;
+            activityBuffer.keypressCount += 1;
+            markActivity();
+        }
+
+        function recordMouseMoveActivity() {
+            if (!sessionId || trackingPaused) return;
+            activityBuffer.mouseMoveCount += 1;
+            markActivity();
+        }
+
+        function recordMouseClickActivity() {
+            if (!sessionId || trackingPaused) return;
+            activityBuffer.mouseClickCount += 1;
+            markActivity();
+        }
+
+        function recordScrollActivity() {
+            if (!sessionId || trackingPaused) return;
+            activityBuffer.scrollCount += 1;
+            markActivity();
+        }
+
+        function startActivityTracking() {
+            resetActivityBuffer();
+            lastActivityAt = Date.now();
+            window.addEventListener('keydown', recordKeyboardActivity);
+            window.addEventListener('mousemove', recordMouseMoveActivity, { passive: true });
+            window.addEventListener('click', recordMouseClickActivity, { passive: true });
+            window.addEventListener('scroll', recordScrollActivity, { passive: true });
+            activityTickInterval = setInterval(() => {
+                if (!trackingPaused && Date.now() - lastActivityAt < 15000) {
+                    activityBuffer.activeTime += 5;
+                }
+                updateActivityLevel();
+            }, 5000);
+            activityFlushInterval = setInterval(flushActivity, 30000);
+            log('Keyboard and mouse activity tracking enabled (counts only)', 'success');
+        }
+
+        function stopActivityTracking() {
+            window.removeEventListener('keydown', recordKeyboardActivity);
+            window.removeEventListener('mousemove', recordMouseMoveActivity);
+            window.removeEventListener('click', recordMouseClickActivity);
+            window.removeEventListener('scroll', recordScrollActivity);
+            clearInterval(activityTickInterval);
+            clearInterval(activityFlushInterval);
+            resetActivityBuffer();
+            updateActivityLevel('Stopped');
+        }
+
+        function resetActivityBuffer() {
+            activityBuffer.keypressCount = 0;
+            activityBuffer.mouseMoveCount = 0;
+            activityBuffer.mouseClickCount = 0;
+            activityBuffer.scrollCount = 0;
+            activityBuffer.activeTime = 0;
+        }
+
+        function updateActivityLevel(label = null) {
+            const level = label || (
+                activityBuffer.keypressCount + activityBuffer.mouseClickCount + activityBuffer.scrollCount > 20 ||
+                activityBuffer.mouseMoveCount > 80 ? 'High' :
+                activityBuffer.keypressCount + activityBuffer.mouseClickCount + activityBuffer.scrollCount > 0 ||
+                activityBuffer.mouseMoveCount > 0 ? 'Active' : 'Idle'
+            );
+            document.getElementById('activityLevel').textContent = level;
+        }
+
+        async function postActivity(type, data) {
+            const userId = getUserId();
+            if (!sessionId || !userId) return;
+            const response = await fetch(`${getApiUrl()}/api/activity`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-User-ID': userId,
+                },
+                body: JSON.stringify({ sessionId, type, data: { type, ...data } }),
+            });
+            if (!response.ok) {
+                throw new Error(`Activity sync failed (${response.status} ${response.statusText})`);
+            }
+        }
+
+        async function flushActivity() {
+            if (!sessionId) return;
+
+            const snapshot = { ...activityBuffer };
+            if (
+                snapshot.keypressCount === 0 &&
+                snapshot.mouseMoveCount === 0 &&
+                snapshot.mouseClickCount === 0 &&
+                snapshot.scrollCount === 0 &&
+                snapshot.activeTime === 0
+            ) {
+                return;
+            }
+            resetActivityBuffer();
+
+            try {
+                if (snapshot.keypressCount > 0) {
+                    await postActivity('keyboard', {
+                        keypressCount: snapshot.keypressCount,
+                        activeTime: snapshot.activeTime,
+                    });
+                }
+                if (snapshot.mouseMoveCount > 0 || snapshot.mouseClickCount > 0 || snapshot.scrollCount > 0) {
+                    await postActivity('mouse', {
+                        moveCount: snapshot.mouseMoveCount,
+                        clickCount: snapshot.mouseClickCount,
+                        scrollCount: snapshot.scrollCount,
+                        activeTime: snapshot.keypressCount > 0 ? 0 : snapshot.activeTime,
+                    });
+                }
+                updateActivityLevel();
+                log(`Activity synced: ${snapshot.keypressCount} keys, ${snapshot.mouseMoveCount} moves, ${snapshot.mouseClickCount} clicks`, 'success');
+            } catch (error) {
+                activityBuffer.keypressCount += snapshot.keypressCount;
+                activityBuffer.mouseMoveCount += snapshot.mouseMoveCount;
+                activityBuffer.mouseClickCount += snapshot.mouseClickCount;
+                activityBuffer.scrollCount += snapshot.scrollCount;
+                activityBuffer.activeTime += snapshot.activeTime;
+                log('Failed to sync activity: ' + error.message, 'error');
+            }
         }
 
         async function trackGithubEvent() {
@@ -507,6 +672,8 @@
                 const { summary } = await response.json();
                 
                 document.getElementById('githubEvents').textContent = summary.githubEvents;
+                document.getElementById('activityLevel').textContent =
+                    `${summary.keyboardActivity} keys / ${summary.mouseActivity} mouse`;
                 document.getElementById('productivity').textContent = summary.productivity.toUpperCase();
                 
                 log('Summary generated: ' + summary.productivity + ' productivity', 'success');
