@@ -535,7 +535,7 @@
             const userId = getUserId();
             if (!userId) return;
 
-            await fetch(`${getApiUrl()}/api/activity`, {
+            const response = await fetch(`${getApiUrl()}/api/activity`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -552,6 +552,10 @@
                     },
                 }),
             });
+
+            if (!response.ok) {
+                throw new Error(`Activity upload failed with status ${response.status}`);
+            }
         }
 
         async function flushActivityMetrics() {
