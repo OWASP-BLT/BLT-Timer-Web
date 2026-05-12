@@ -413,12 +413,15 @@
 
             try {
                 const action = trackingPaused ? 'resume' : 'pause';
-                await fetch(`${getApiUrl()}/api/sessions/${sessionId}/${action}`, {
+                const response = await fetch(`${getApiUrl()}/api/sessions/${sessionId}/${action}`, {
                     method: 'POST',
                     headers: {
                         'X-User-ID': userId,
                     },
                 });
+                if (!response.ok) {
+                    throw new Error(`Failed to ${action} session (${response.status} ${response.statusText})`);
+                }
 
                 trackingPaused = !trackingPaused;
                 document.getElementById('status').className = trackingPaused ? 'status inactive' : 'status active';
@@ -459,21 +462,25 @@
         }
 
         function recordKeyboardActivity() {
+            if (!sessionId || trackingPaused) return;
             activityBuffer.keypressCount += 1;
             markActivity();
         }
 
         function recordMouseMoveActivity() {
+            if (!sessionId || trackingPaused) return;
             activityBuffer.mouseMoveCount += 1;
             markActivity();
         }
 
         function recordMouseClickActivity() {
+            if (!sessionId || trackingPaused) return;
             activityBuffer.mouseClickCount += 1;
             markActivity();
         }
 
         function recordScrollActivity() {
+            if (!sessionId || trackingPaused) return;
             activityBuffer.scrollCount += 1;
             markActivity();
         }
@@ -527,7 +534,7 @@
         async function postActivity(type, data) {
             const userId = getUserId();
             if (!sessionId || !userId) return;
-            await fetch(`${getApiUrl()}/api/activity`, {
+            const response = await fetch(`${getApiUrl()}/api/activity`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -535,6 +542,9 @@
                 },
                 body: JSON.stringify({ sessionId, type, data: { type, ...data } }),
             });
+            if (!response.ok) {
+                throw new Error(`Activity sync failed (${response.status} ${response.statusText})`);
+            }
         }
 
         async function flushActivity() {
